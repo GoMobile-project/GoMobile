@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Modul Premium: {{ package.title }} - GoMobile{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- Header Modul Premium -->
+  <div style="background:linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);color:#FFF;border-radius:var(--radius-xl);padding:2.5rem 1.75rem;margin-bottom:2rem;box-shadow:var(--shadow-md);">
+    <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.18);padding:0.3rem 0.8rem;border-radius:999px;font-size:0.8rem;font-weight:700;margin-bottom:0.75rem;">
+      <svg style="width:16px;height:16px;color:#FBBF24;" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+      </svg>
+      Akses Paket Premium Terverifikasi
+    </div>
+    <h1 style="font-size:clamp(1.6rem, 3.5vw, 2.4rem);font-weight:800;margin-bottom:0.5rem;">
+      {{ package.title }}
+    </h1>
+    <p style="font-size:1rem;color:#E0E7FF;max-width:760px;line-height:1.6;">
+      Selamat belajar! Seluruh materi komprehensif UTBK, SNBT, dan TKA telah dibuka untuk akun Anda. Ikuti modul berurutan dan manfaatkan latihan simulasi CAT berbobot IRT.
+    </p>
+  </div>
+
+  <div class="responsive-2col">
+    
+    <!-- Kolom Utama: Daftar Modul Pembelajaran Lengkap -->
+    <div>
+      <h2 style="font-size:1.4rem;font-weight:800;color:var(--dark);margin-bottom:1.25rem;">
+        Daftar Modul &amp; Silabus Pembelajaran
+      </h2>
+
+      {% for mod in package.modules %}
+      <div style="background:var(--white);border-radius:var(--radius-lg);border:1px solid var(--gray-200);box-shadow:var(--shadow-sm);margin-bottom:1.25rem;overflow:hidden;">
+        <div style="padding:1.25rem 1.5rem;background:#F8FAFC;border-bottom:1px solid var(--gray-200);display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <span class="badge badge-primary" style="margin-bottom:0.25rem;">Modul #{{ loop.index }}</span>
+            <h3 style="font-size:1.15rem;font-weight:800;color:var(--dark);">{{ mod.title }}</h3>
+          </div>
+          <span style="font-size:0.85rem;color:var(--primary);font-weight:700;">{{ mod.hours }}</span>
+        </div>
+
+        <div style="padding:1.5rem;">
+          <p style="font-size:0.92rem;color:var(--gray-600);line-height:1.5;margin-bottom:1rem;">
+            Pelajari konsep kunci, trik penyelesaian cepat, serta analisis mendalam tipe-tipe soal HOTS (Higher Order Thinking Skills).
+          </p>
+
+          <div style="display:flex;flex-direction:column;gap:0.6rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0.85rem;background:#F1F5F9;border-radius:var(--radius-sm);font-size:0.88rem;">
+              <span>&bull; Materi Video Pembahasan Konsep Dasar ({{ mod.lessons }} Pertemuan)</span>
+              <span class="badge badge-success">&#10004; Tersedia</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0.85rem;background:#F1F5F9;border-radius:var(--radius-sm);font-size:0.88rem;">
+              <span>&bull; Ringkasan E-Book Modul PDF &amp; Kumpulan Rumus Sakti</span>
+              <span class="badge badge-primary">&#128196; Download PDF</span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0.85rem;background:#F1F5F9;border-radius:var(--radius-sm);font-size:0.88rem;">
+              <span>&bull; Simulasi Drill Uji Kompetensi Subtes Mandiri</span>
+              <span class="badge badge-warning">&#9997; Mulai Tes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Kolom Samping: Fitur Tambahan & Bimbingan -->
+    <div>
+      <div style="background:var(--white);border-radius:var(--radius-lg);border:1px solid var(--gray-200);padding:1.5rem;box-shadow:var(--shadow-sm);margin-bottom:1.5rem;">
+        <h3 style="font-size:1.15rem;font-weight:800;color:var(--dark);margin-bottom:0.75rem;">
+          Mentoring Pengajar
+        </h3>
+        <p style="font-size:0.88rem;color:var(--gray-600);line-height:1.5;margin-bottom:1rem;">
+          Sebagai peserta paket intensif berbayar, Anda berhak berkonsultasi langsung dengan pengajar GoMobile untuk bedah soal yang sulit.
+        </p>
+        <div style="background:var(--primary-light);padding:0.85rem;border-radius:var(--radius-md);font-size:0.85rem;color:var(--primary);margin-bottom:1rem;font-weight:600;">
+          Jadwal Mentoring Mingguan: Setiap Sabtu &amp; Minggu Pukul 19.30 WIB via Live Classroom.
+        </div>
+        <a href="{{ url_for('ruang_belajar') }}" class="btn btn-secondary btn-block">
+          Latihan Bank Soal Dasar
+        </a>
+      </div>
+
+      <div style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:var(--radius-lg);padding:1.5rem;">
+        <h4 style="font-size:1rem;font-weight:800;color:#92400E;margin-bottom:0.5rem;">Tips Belajar Efektif</h4>
+        <ul style="font-size:0.85rem;color:#78350F;padding-left:1.2rem;line-height:1.6;">
+          <li>Luangkan 90 menit per hari untuk memahami modul.</li>
+          <li>Kerjakan tryout mingguan untuk membiasakan kecepatan waktu.</li>
+          <li>Baca ulasan di Ruang Baca untuk memperkaya literasi umum.</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

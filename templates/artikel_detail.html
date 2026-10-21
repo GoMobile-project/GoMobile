@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}{{ article.title }} - Ruang Baca GoMobile{% endblock %}
+
+{% block content %}
+<div class="container-narrow">
+  
+  <div style="margin-bottom:1.25rem;">
+    <a href="{{ url_for('ruang_baca') }}" class="btn btn-secondary" style="padding:0.4rem 0.85rem;font-size:0.85rem;">
+      &larr; Kembali ke Ruang Baca
+    </a>
+  </div>
+
+  <article class="article-reader-container">
+    <div style="margin-bottom:1.5rem;">
+      <span class="badge badge-primary" style="font-size:0.8rem;padding:0.3rem 0.75rem;margin-bottom:0.75rem;">
+        {{ article.badge or 'Topik Edukasi' }}
+      </span>
+
+      <h1 style="font-size:clamp(1.6rem, 3.5vw, 2.3rem);font-weight:800;color:var(--dark);line-height:1.3;margin-bottom:1rem;">
+        {{ article.title }}
+      </h1>
+
+      <div style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;font-size:0.88rem;color:var(--gray-500);border-bottom:1px solid var(--gray-200);padding-bottom:1.25rem;">
+        <div style="display:flex;align-items:center;gap:0.4rem;">
+          <div style="width:28px;height:28px;border-radius:50%;background:var(--primary);color:#FFF;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:0.75rem;">
+            {{ article.author[0]|upper }}
+          </div>
+          <span>Penulis: <strong style="color:var(--gray-800);">{{ article.author }}</strong></span>
+        </div>
+        <span>&bull; Waktu Baca: <strong>{{ article.read_time }}</strong></span>
+        <span>&bull; Dilihat: <strong>{{ article.views }} kali</strong></span>
+        <span>&bull; Tanggal: {{ article.created_at }}</span>
+      </div>
+    </div>
+
+    <!-- Summary Lead Paragraph -->
+    <div style="background:#F8FAFC;border-left:4px solid var(--primary);padding:1.15rem 1.25rem;border-radius:0 var(--radius-md) var(--radius-md) 0;margin-bottom:2rem;font-size:1.05rem;font-style:italic;color:var(--gray-700);line-height:1.6;">
+      "{{ article.summary }}"
+    </div>
+
+    <!-- Full Article Body -->
+    <div class="article-reader-content">
+      {{ article.content }}
+    </div>
+
+    <!-- Article Footer / CTA -->
+    <div style="margin-top:3rem;padding-top:2rem;border-top:1px solid var(--gray-200);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+      <div>
+        <span style="font-size:0.85rem;color:var(--gray-500);">Kategori Artikel:</span>
+        <strong style="color:var(--primary);display:block;">
+          {% if article.category == 'hits' %}
+            Tren &amp; Transformasi Pendidikan
+          {% elif article.category == 'pahlawan_sejarah' %}
+            Pahlawan &amp; Warisan Sejarah Pendidikan
+          {% else %}
+            Bimbingan Sukses UTBK, SNBT &amp; TKA
+          {% endif %}
+        </strong>
+      </div>
+
+      <div style="display:flex;gap:0.5rem;">
+        <a href="{{ url_for('ruang_baca') }}" class="btn btn-secondary">
+          Artikel Lainnya
+        </a>
+        <a href="{{ url_for('paket_berbayar') }}" class="btn btn-warning" style="font-weight:700;">
+          Lihat Paket UTBK Berbayar &rarr;
+        </a>
+      </div>
+    </div>
+
+  </article>
+
+</div>
+{% endblock %}

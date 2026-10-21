@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Pembayaran QRIS Berhasil - GoMobile{% endblock %}
+
+{% block content %}
+<div class="container-narrow">
+  
+  <div style="background:var(--white);border-radius:var(--radius-xl);border:1px solid var(--gray-200);box-shadow:var(--shadow-md);padding:3rem 2rem;text-align:center;margin-top:1.5rem;">
+    
+    <div style="width:80px;height:80px;background:var(--success-light);color:var(--success);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
+      <svg style="width:48px;height:48px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+      </svg>
+    </div>
+
+    <span class="badge badge-success" style="font-size:0.85rem;padding:0.35rem 0.9rem;margin-bottom:0.75rem;">
+      Pembayaran QRIS Terkonfirmasi
+    </span>
+
+    <h1 style="font-size:clamp(1.7rem, 3.5vw, 2.2rem);font-weight:800;color:var(--dark);margin-bottom:0.5rem;">
+      Selamat! Pendaftaran &amp; Pembayaran Berhasil
+    </h1>
+
+    <p style="color:var(--gray-600);font-size:0.95rem;max-width:550px;margin:0 auto 2rem;">
+      Terima kasih telah bergabung bersama GoMobile. Akses modul materi kurikulum premium Anda telah aktif dan siap dipelajari kapan saja.
+    </p>
+
+    <!-- Ringkasan Invoice Order -->
+    <div style="background:#F8FAFC;border-radius:var(--radius-lg);padding:1.5rem;text-align:left;max-width:500px;margin:0 auto 2rem;border:1px solid var(--gray-200);font-size:0.92rem;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:0.6rem;padding-bottom:0.6rem;border-bottom:1px solid var(--gray-200);">
+        <span style="color:var(--gray-500);">Kode Transaksi:</span>
+        <strong style="color:var(--dark);">{{ order.order_code }}</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:0.6rem;padding-bottom:0.6rem;border-bottom:1px solid var(--gray-200);">
+        <span style="color:var(--gray-500);">Nama Siswa:</span>
+        <strong style="color:var(--dark);">{{ order.buyer_name }}</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:0.6rem;padding-bottom:0.6rem;border-bottom:1px solid var(--gray-200);">
+        <span style="color:var(--gray-500);">Paket Belajar:</span>
+        <strong style="color:var(--dark);">{{ order.package_title }}</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:0.6rem;padding-bottom:0.6rem;border-bottom:1px solid var(--gray-200);">
+        <span style="color:var(--gray-500);">Metode Pembayaran:</span>
+        <strong style="color:#DE1D24;">QRIS Nasional</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;">
+        <span style="color:var(--gray-500);font-weight:600;">Total Biaya:</span>
+        <strong style="color:var(--primary);font-size:1.3rem;">Rp {{ "{:,}".format(order.amount).replace(',', '.') }},00</strong>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <a href="{{ url_for('materi_premium', slug=package.slug) }}" class="btn btn-primary btn-lg" style="font-weight:800;">
+        <svg style="width:20px;height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+        </svg>
+        Buka Modul Materi Premium Saya &rarr;
+      </a>
+      <a href="{{ url_for('index') }}" class="btn btn-secondary btn-lg">
+        Kembali ke Beranda
+      </a>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

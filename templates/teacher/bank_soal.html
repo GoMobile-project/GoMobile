@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Kelola Bank Soal SMA - Portal Pengajar GoMobile{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- Breadcrumb & Header -->
+  <div style="margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <a href="{{ url_for('teacher_dashboard') }}" style="color:var(--primary);font-size:0.85rem;font-weight:700;text-decoration:none;">
+        &larr; Kembali ke Dashboard Pengajar
+      </a>
+      <h1 style="font-size:1.75rem;font-weight:800;color:var(--dark);margin-top:0.25rem;">
+        Kelola Bank Soal Ruang Belajar (Kelas 10 - 12 SMA)
+      </h1>
+    </div>
+  </div>
+
+  <div class="teacher-layout">
+
+    <!-- Sidebar Menu Navigasi Pengajar -->
+    <aside class="teacher-sidebar">
+      <ul class="teacher-nav-list">
+        <li class="teacher-nav-item"><a href="{{ url_for('teacher_dashboard') }}">Ringkasan Dashboard</a></li>
+        <li class="teacher-nav-item"><a href="{{ url_for('teacher_bank_soal') }}" class="active">Kelola Bank Soal (Kls 10-12)</a></li>
+        <li class="teacher-nav-item"><a href="{{ url_for('teacher_articles') }}">Kelola Ruang Baca</a></li>
+        <li class="teacher-nav-item"><a href="{{ url_for('teacher_verifikasi_bayar') }}">Verifikasi Pesanan QRIS</a></li>
+        <li class="teacher-nav-item"><a href="{{ url_for('teacher_nilai_siswa') }}">Pantau Nilai Siswa</a></li>
+      </ul>
+    </aside>
+
+    <!-- Konten Manajemen Bank Soal -->
+    <div>
+
+      <!-- Form Tambah Soal Baru -->
+      <div style="background:var(--white);border-radius:var(--radius-xl);border:1px solid var(--gray-200);padding:2rem;box-shadow:var(--shadow-sm);margin-bottom:2rem;">
+        <h2 style="font-size:1.3rem;font-weight:800;color:var(--dark);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <svg style="width:22px;height:22px;color:var(--primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Form Tambah Latihan Soal Baru ke Database
+        </h2>
+
+        <form method="POST" action="{{ url_for('add_question') }}">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="form-group">
+              <label class="form-label" for="grade">Jenjang Kelas SMA</label>
+              <select class="form-control" id="grade" name="grade" required>
+                <option value="10">Kelas 10 SMA (Fase E)</option>
+                <option value="11">Kelas 11 SMA (Fase F Dasar)</option>
+                <option value="12">Kelas 12 SMA (Fase F Ujian &amp; UTBK)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="subject">Mata Pelajaran</label>
+              <input type="text" class="form-control" id="subject" name="subject" required placeholder="Contoh: Matematika, Fisika, Biologi, Kimia, B. Indonesia">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="question_text">Teks Pertanyaan Soal</label>
+            <textarea class="form-control" id="question_text" name="question_text" rows="3" required placeholder="Tuliskan soal secara lengkap dan jelas..."></textarea>
+          </div>
+
+          <!-- Opsi A - E -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="form-group">
+              <label class="form-label" for="option_a">Pilihan Jawaban A</label>
+              <input type="text" class="form-control" id="option_a" name="option_a" required placeholder="Teks opsi A">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="option_b">Pilihan Jawaban B</label>
+              <input type="text" class="form-control" id="option_b" name="option_b" required placeholder="Teks opsi B">
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="form-group">
+              <label class="form-label" for="option_c">Pilihan Jawaban C</label>
+              <input type="text" class="form-control" id="option_c" name="option_c" required placeholder="Teks opsi C">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="option_d">Pilihan Jawaban D</label>
+              <input type="text" class="form-control" id="option_d" name="option_d" required placeholder="Teks opsi D">
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="form-group">
+              <label class="form-label" for="option_e">Pilihan Jawaban E</label>
+              <input type="text" class="form-control" id="option_e" name="option_e" required placeholder="Teks opsi E">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="correct_option">Kunci Jawaban Benar</label>
+              <select class="form-control" id="correct_option" name="correct_option" required style="font-weight:700;color:var(--primary);">
+                <option value="A">Pilihan A</option>
+                <option value="B">Pilihan B</option>
+                <option value="C">Pilihan C</option>
+                <option value="D">Pilihan D</option>
+                <option value="E">Pilihan E</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="explanation">Kunci Pembahasan Lengkap (Ditampilkan di Halaman Hasil)</label>
+            <textarea class="form-control" id="explanation" name="explanation" rows="3" required placeholder="Tuliskan langkah pengerjaan, rumus, dan konsep dasar..."></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg" style="margin-top:0.5rem;">
+            Simpan Soal ke Database GoMobile
+          </button>
+        </form>
+      </div>
+
+      <!-- Daftar Soal Tersimpan -->
+      <div style="background:var(--white);border-radius:var(--radius-xl);border:1px solid var(--gray-200);padding:2rem;box-shadow:var(--shadow-sm);">
+        <h2 style="font-size:1.3rem;font-weight:800;color:var(--dark);margin-bottom:1.25rem;">
+          Daftar Soal Tersimpan di Database ({{ questions|length }} Soal)
+        </h2>
+
+        <div class="data-table-wrapper" style="box-shadow:none;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width:70px;">Kelas</th>
+                <th style="width:120px;">Mapel</th>
+                <th>Teks Soal</th>
+                <th style="width:80px;">Kunci</th>
+                <th style="width:100px;">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for q in questions %}
+              <tr>
+                <td><span class="badge badge-primary">Kls {{ q.grade }}</span></td>
+                <td><strong>{{ q.subject }}</strong></td>
+                <td>
+                  <div style="font-weight:600;margin-bottom:0.25rem;">{{ q.question_text|truncate(80) }}</div>
+                  <div style="font-size:0.75rem;color:var(--gray-500);">Opsi: A) {{ q.option_a|truncate(20) }} &bull; B) {{ q.option_b|truncate(20) }}</div>
+                </td>
+                <td><span class="badge badge-success">{{ q.correct_option }}</span></td>
+                <td>
+                  <form method="POST" action="{{ url_for('delete_question', q_id=q.id) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus soal ini?');">
+                    <button type="submit" class="btn btn-danger" style="padding:0.25rem 0.6rem;font-size:0.78rem;">
+                      Hapus
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

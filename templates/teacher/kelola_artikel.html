@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Kelola Ruang Baca - Portal Pengajar GoMobile{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- Breadcrumb & Header -->
+  <div style="margin-bottom:1.5rem;">
+    <a href="{{ url_for('teacher_dashboard') }}" style="color:var(--primary);font-size:0.85rem;font-weight:700;text-decoration:none;">
+      &larr; Kembali ke Dashboard Pengajar
+    </a>
+    <h1 style="font-size:1.75rem;font-weight:800;color:var(--dark);margin-top:0.25rem;">
+      Kelola Artikel &amp; Publikasi Ruang Baca
+    </h1>
+  </div>
+
+  <div class="teacher-layout">
+
+    <!-- Sidebar Menu Navigasi Pengajar -->
+    <aside class="teacher-sidebar">
+      <ul class="teacher-nav-list">
+        <li class="teacher-nav-item"><a href="{{ url_for('teacher_dashboard') }}">Ringkasan Dashboard</a></li>
+        <li class="teacher-nav-item"><a href="{{ url_for('teacher_bank_soal') }}">Kelola Bank Soal (Kls 10-12)</a></li>
+        <li class="teacher-nav-item"><a href="{{ url_for('teacher_articles') }}" class="active">Kelola Ruang Baca</a></li>
+        <li class="teacher-nav-item"><a href="{{ url_for('teacher_verifikasi_bayar') }}">Verifikasi Pesanan QRIS</a></li>
+        <li class="teacher-nav-item"><a href="{{ url_for('teacher_nilai_siswa') }}">Pantau Nilai Siswa</a></li>
+      </ul>
+    </aside>
+
+    <!-- Konten Manajemen Artikel -->
+    <div>
+
+      <!-- Form Tambah Artikel Baru -->
+      <div style="background:var(--white);border-radius:var(--radius-xl);border:1px solid var(--gray-200);padding:2rem;box-shadow:var(--shadow-sm);margin-bottom:2rem;">
+        <h2 style="font-size:1.3rem;font-weight:800;color:var(--dark);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <svg style="width:22px;height:22px;color:var(--primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+          </svg>
+          Publikasikan Artikel Edukasi Baru
+        </h2>
+
+        <form method="POST" action="{{ url_for('add_article') }}">
+          <div class="form-group">
+            <label class="form-label" for="title">Judul Artikel</label>
+            <input type="text" class="form-control" id="title" name="title" required placeholder="Contoh: Menelusuri Semangat Perjuangan Guru Perintis di Pelosok Negeri">
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="form-group">
+              <label class="form-label" for="category">Kategori Artikel</label>
+              <select class="form-control" id="category" name="category" required>
+                <option value="hits">🔥 Hits Pendidikan &amp; Tren Masa Kini</option>
+                <option value="pahlawan_sejarah">🏛️ Pahlawan &amp; Sejarah Pendidikan</option>
+                <option value="utbk_snbt_tka">🎯 Pembahasan TKA, UTBK &amp; SNBT</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="badge">Label Badge</label>
+              <input type="text" class="form-control" id="badge" name="badge" placeholder="Contoh: Trending Hits, Tokoh Bangsa, Tips Lolos">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="summary">Ringkasan Singkat (Lead Paragraph)</label>
+            <textarea class="form-control" id="summary" name="summary" rows="2" required placeholder="Ringkasan 1-2 kalimat pengantar artikel..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="content">Isi Lengkap Artikel</label>
+            <textarea class="form-control" id="content" name="content" rows="6" required placeholder="Tulis isi artikel secara menyeluruh di sini..."></textarea>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="form-group">
+              <label class="form-label" for="author">Nama Penulis</label>
+              <input type="text" class="form-control" id="author" name="author" value="{{ session.get('user_name', 'Guru GoMobile') }}" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="read_time">Estimasi Waktu Baca</label>
+              <input type="text" class="form-control" id="read_time" name="read_time" value="5 menit" required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg" style="margin-top:0.5rem;">
+            Publikasikan ke Ruang Baca
+          </button>
+        </form>
+      </div>
+
+      <!-- Daftar Artikel yang Sudah Terbit -->
+      <div style="background:var(--white);border-radius:var(--radius-xl);border:1px solid var(--gray-200);padding:2rem;box-shadow:var(--shadow-sm);">
+        <h2 style="font-size:1.3rem;font-weight:800;color:var(--dark);margin-bottom:1.25rem;">
+          Daftar Artikel Terbit di Ruang Baca ({{ articles|length }} Artikel)
+        </h2>
+
+        <div class="data-table-wrapper" style="box-shadow:none;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Judul Artikel</th>
+                <th>Kategori</th>
+                <th>Penulis</th>
+                <th>Pembaca</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for art in articles %}
+              <tr>
+                <td>
+                  <strong>{{ art.title }}</strong>
+                  <div style="font-size:0.75rem;color:var(--gray-500);">{{ art.summary|truncate(60) }}</div>
+                </td>
+                <td>
+                  {% if art.category == 'hits' %}
+                    <span class="badge badge-primary">Hits</span>
+                  {% elif art.category == 'pahlawan_sejarah' %}
+                    <span class="badge badge-warning">Sejarah</span>
+                  {% else %}
+                    <span class="badge badge-success">UTBK/SNBT</span>
+                  {% endif %}
+                </td>
+                <td>{{ art.author }}</td>
+                <td><strong>{{ art.views }}</strong> views</td>
+                <td>
+                  <form method="POST" action="{{ url_for('delete_article', art_id=art.id) }}" onsubmit="return confirm('Hapus artikel ini?');">
+                    <button type="submit" class="btn btn-danger" style="padding:0.25rem 0.6rem;font-size:0.78rem;">
+                      Hapus
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

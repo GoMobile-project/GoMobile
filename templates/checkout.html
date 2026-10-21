@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Registrasi &amp; Pembayaran QRIS - GoMobile{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- Header Checkout -->
+  <div style="margin-bottom:2rem;text-align:center;">
+    <span class="badge badge-warning" style="font-size:0.85rem;padding:0.35rem 1rem;margin-bottom:0.5rem;">
+      Langkah Terakhir Pendaftaran
+    </span>
+    <h1 style="font-size:clamp(1.6rem, 3.5vw, 2.3rem);font-weight:800;color:var(--dark);">
+      Registrasi &amp; Pembayaran Paket Berbayar
+    </h1>
+    <p style="color:var(--gray-600);font-size:0.95rem;">
+      Lengkapi data identitas Anda untuk registrasi akun dan lakukan pembayaran melalui scan QRIS resmi.
+    </p>
+  </div>
+
+  <div class="checkout-grid">
+
+    <!-- Kolom 1: Formulir Registrasi Identitas Siswa -->
+    <div class="checkout-card">
+      <h2 style="font-size:1.3rem;font-weight:800;color:var(--dark);margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg style="width:22px;height:22px;color:var(--primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+        </svg>
+        1. Identitas Siswa &amp; Registrasi Akun
+      </h2>
+
+      <form id="paymentConfirmForm" method="POST" action="{{ url_for('process_checkout') }}">
+        <input type="hidden" name="package_id" value="{{ selected_package.id }}">
+
+        {% if session.get('user_id') %}
+        <div style="background:var(--primary-light);padding:1rem;border-radius:var(--radius-md);margin-bottom:1.5rem;border:1px solid #C7D2FE;">
+          <strong style="color:var(--primary);display:block;margin-bottom:0.25rem;">
+            &#10004; Terdaftar Sebagai: {{ session.get('user_name') }}
+          </strong>
+          <span style="font-size:0.85rem;color:var(--gray-700);">
+            Role: <strong>{{ session.get('role')|capitalize }}</strong> &bull; Email: {{ current_user.email }}
+          </span>
+          <input type="hidden" name="buyer_name" value="{{ current_user.full_name }}">
+          <input type="hidden" name="buyer_email" value="{{ current_user.email }}">
+          <input type="hidden" name="buyer_phone" value="{{ current_user.phone }}">
+          <input type="hidden" name="buyer_school" value="{{ current_user.school }}">
+        </div>
+        {% else %}
+        <p style="font-size:0.88rem;color:var(--gray-600);margin-bottom:1.25rem;">
+          Akun Anda akan otomatis didaftarkan dan disimpan ke dalam database GoMobile.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label" for="buyer_name">Nama Lengkap Siswa</label>
+          <input type="text" class="form-control" id="buyer_name" name="buyer_name" required placeholder="Contoh: Muhammad Fajri">
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" for="username">Username / ID Login</label>
+            <input type="text" class="form-control" id="username" name="username" required placeholder="Contoh: fajri2026">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="password">Kata Sandi Akun</label>
+            <input type="password" class="form-control" id="password" name="password" required minlength="6" placeholder="Minimal 6 karakter">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="buyer_email">Alamat Email Aktif</label>
+          <input type="email" class="form-control" id="buyer_email" name="buyer_email" required placeholder="nama@email.com">
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" for="buyer_phone">Nomor WhatsApp / HP</label>
+            <input type="tel" class="form-control" id="buyer_phone" name="buyer_phone" required placeholder="08xxxxxxxxxx">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="buyer_school">Asal Sekolah</label>
+            <input type="text" class="form-control" id="buyer_school" name="buyer_school" required placeholder="Contoh: SMAN 1 Bandung">
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="form-group" style="margin-top:1.5rem;">
+          <label class="form-label" for="proof_note">Catatan / Referensi Transfer (Opsional)</label>
+          <input type="text" class="form-control" id="proof_note" name="proof_note" placeholder="Contoh: Pembayaran dari rekening atas nama Fajri">
+          <small style="color:var(--gray-500);font-size:0.75rem;">Membantu guru dan staf verifikasi mencocokkan pembayaran QRIS Anda.</small>
+        </div>
+
+        <div style="margin-top:2rem;">
+          <button type="button" id="btnSimulatePay" class="btn btn-primary btn-block btn-lg" style="font-weight:800;background:linear-gradient(135deg, #10B981, #059669);box-shadow:0 4px 14px rgba(16, 185, 129, 0.4);">
+            <svg style="width:22px;height:22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Konfirmasi Pembayaran QRIS Sekarang
+          </button>
+          <small style="display:block;text-align:center;color:var(--gray-500);font-size:0.78rem;margin-top:0.6rem;">
+            Data Anda tersimpan aman di database dengan enkripsi standar.
+          </small>
+        </div>
+      </form>
+    </div>
+
+    <!-- Kolom 2: Ringkasan Paket & Tampilan QRIS -->
+    <div class="checkout-card" style="background:#F8FAFC;border:2px solid #E2E8F0;">
+      <h2 style="font-size:1.3rem;font-weight:800;color:var(--dark);margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg style="width:22px;height:22px;color:#DE1D24;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+        </svg>
+        2. Pembayaran Hanya Melalui QRIS
+      </h2>
+
+      <!-- Ringkasan Harga Paket -->
+      <div style="background:#FFFFFF;border-radius:var(--radius-lg);padding:1.25rem;margin-bottom:1.5rem;border:1px solid var(--gray-200);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem;">
+          <div>
+            <span class="badge badge-warning" style="margin-bottom:0.25rem;">Paket Belajar Dipilih</span>
+            <h3 style="font-size:1.15rem;font-weight:800;color:var(--gray-900);">{{ selected_package.title }}</h3>
+          </div>
+          <span style="font-size:0.8rem;color:var(--gray-500);font-weight:600;">Metode: QRIS</span>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding-top:0.75rem;border-top:1px dashed var(--gray-200);">
+          <span style="color:var(--gray-600);font-weight:600;">Total Biaya Registrasi:</span>
+          <span style="font-size:1.6rem;font-weight:900;color:var(--primary);">
+            {{ selected_package.price_display }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Tampilan Visual QRIS Resmi -->
+      <div class="qris-display-box">
+        <div style="margin-bottom:0.75rem;">
+          <span style="font-size:0.82rem;font-weight:700;color:#DE1D24;text-transform:uppercase;letter-spacing:1px;display:block;">
+            QR CODE INDONESIA STANDAR (QRIS)
+          </span>
+          <small style="color:var(--gray-500);">NMID: ID10268892019910 &bull; GoMobile Indonesia</small>
+        </div>
+
+        <img src="{{ url_for('static', filename='img/qris_placeholder.svg') }}" alt="QRIS GoMobile" class="qris-image">
+
+        <div class="qris-notice">
+          <svg style="width:20px;height:20px;color:#D97706;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <div style="text-align:left;">
+            <strong>Informasi Pembayaran:</strong> Pembayaran eksklusif melalui QRIS. Scan menggunakan aplikasi M-Banking atau E-Wallet apa pun. Setelah itu klik tombol konfirmasi.
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size:0.82rem;color:var(--gray-500);text-align:center;">
+        Mendukung: BCA, Mandiri Livin', BRImo, BNI Mobile, GoPay, OVO, DANA, ShopeePay, LinkAja.
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

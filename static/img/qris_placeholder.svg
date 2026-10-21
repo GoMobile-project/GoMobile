@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 680" width="100%" height="100%">
+  <defs>
+    <linearGradient id="qrisRed" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#DE1D24" />
+      <stop offset="100%" stop-color="#B7151B" />
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.12" />
+    </filter>
+  </defs>
+
+  <!-- Background Card -->
+  <rect width="500" height="680" rx="24" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2" filter="url(#shadow)"/>
+
+  <!-- Top Header Red Banner -->
+  <path d="M 0 24 C 0 10.7 10.7 0 24 0 L 476 0 C 489.3 0 500 10.7 500 24 L 500 80 L 0 80 Z" fill="url(#qrisRed)" />
+
+  <!-- QRIS Header Text & Logo -->
+  <text x="250" y="48" font-family="'Inter', 'Segoe UI', sans-serif" font-size="28" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="4">QRIS</text>
+  <text x="250" y="68" font-family="'Inter', 'Segoe UI', sans-serif" font-size="11" font-weight="600" fill="#FFE4E6" text-anchor="middle" letter-spacing="1">QR CODE INDONESIA STANDAR</text>
+
+  <!-- Merchant Info Box -->
+  <rect x="30" y="96" width="440" height="74" rx="12" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.5"/>
+  <text x="250" y="126" font-family="'Inter', 'Segoe UI', sans-serif" font-size="18" font-weight="800" fill="#1E293B" text-anchor="middle">GOMOBILE INDONESIA</text>
+  <text x="250" y="146" font-family="'Inter', 'Segoe UI', sans-serif" font-size="12" font-weight="500" fill="#64748B" text-anchor="middle">NMID: ID10268892019910 - A01</text>
+  <text x="250" y="162" font-family="'Inter', 'Segoe UI', sans-serif" font-size="11" font-weight="700" fill="#0284C7" text-anchor="middle">SATU QRIS UNTUK SEMUA APLIKASI PEMBAYARAN</text>
+
+  <!-- QR Code Frame -->
+  <rect x="65" y="185" width="370" height="370" rx="16" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/>
+
+  <!-- Stylized QR Code Pattern -->
+  <g fill="#0F172A">
+    <!-- Top-Left Finder Pattern -->
+    <rect x="95" y="215" width="70" height="70" rx="8" fill="#0F172A"/>
+    <rect x="107" y="227" width="46" height="46" rx="4" fill="#FFFFFF"/>
+    <rect x="117" y="237" width="26" height="26" rx="2" fill="#0F172A"/>
+
+    <!-- Top-Right Finder Pattern -->
+    <rect x="335" y="215" width="70" height="70" rx="8" fill="#0F172A"/>
+    <rect x="347" y="227" width="46" height="46" rx="4" fill="#FFFFFF"/>
+    <rect x="357" y="237" width="26" height="26" rx="2" fill="#0F172A"/>
+
+    <!-- Bottom-Left Finder Pattern -->
+    <rect x="95" y="455" width="70" height="70" rx="8" fill="#0F172A"/>
+    <rect x="107" y="467" width="46" height="46" rx="4" fill="#FFFFFF"/>
+    <rect x="117" y="477" width="26" height="26" rx="2" fill="#0F172A"/>
+
+    <!-- Alignment Pattern Bottom Right -->
+    <rect x="345" y="465" width="40" height="40" rx="4" fill="#0F172A"/>
+    <rect x="353" y="473" width="24" height="24" rx="2" fill="#FFFFFF"/>
+    <rect x="359" y="479" width="12" height="12" rx="1" fill="#0F172A"/>
+
+    <!-- Timing Patterns -->
+    <g fill="#0F172A">
+      <rect x="175" y="245" width="10" height="10"/>
+      <rect x="195" y="245" width="10" height="10"/>
+      <rect x="215" y="245" width="10" height="10"/>
+      <rect x="235" y="245" width="10" height="10"/>
+      <rect x="255" y="245" width="10" height="10"/>
+      <rect x="275" y="245" width="10" height="10"/>
+      <rect x="295" y="245" width="10" height="10"/>
+      <rect x="315" y="245" width="10" height="10"/>
+
+      <rect x="125" y="295" width="10" height="10"/>
+      <rect x="125" y="315" width="10" height="10"/>
+      <rect x="125" y="335" width="10" height="10"/>
+      <rect x="125" y="355" width="10" height="10"/>
+      <rect x="125" y="375" width="10" height="10"/>
+      <rect x="125" y="395" width="10" height="10"/>
+      <rect x="125" y="415" width="10" height="10"/>
+      <rect x="125" y="435" width="10" height="10"/>
+    </g>
+
+    <!-- Data Blocks -->
+    <rect x="180" y="215" width="30" height="20" rx="2"/>
+    <rect x="220" y="215" width="20" height="20" rx="2"/>
+    <rect x="250" y="215" width="30" height="20" rx="2"/>
+    <rect x="290" y="215" width="30" height="20" rx="2"/>
+
+    <rect x="180" y="270" width="40" height="20" rx="2"/>
+    <rect x="230" y="270" width="50" height="20" rx="2"/>
+    <rect x="290" y="270" width="30" height="40" rx="2"/>
+    <rect x="330" y="295" width="40" height="25" rx="2"/>
+    <rect x="380" y="295" width="25" height="25" rx="2"/>
+
+    <rect x="95" y="330" width="20" height="40" rx="2"/>
+    <rect x="145" y="330" width="35" height="25" rx="2"/>
+    <rect x="190" y="300" width="45" height="30" rx="2"/>
+    <rect x="150" y="365" width="30" height="35" rx="2"/>
+    <rect x="190" y="340" width="25" height="20" rx="2"/>
+    <rect x="190" y="370" width="40" height="30" rx="2"/>
+    <rect x="240" y="310" width="40" height="40" rx="2"/>
+    <rect x="240" y="360" width="30" height="40" rx="2"/>
+    <rect x="280" y="360" width="40" height="30" rx="2"/>
+
+    <rect x="330" y="330" width="35" height="40" rx="2"/>
+    <rect x="375" y="330" width="30" height="30" rx="2"/>
+    <rect x="330" y="380" width="30" height="30" rx="2"/>
+    <rect x="370" y="370" width="35" height="40" rx="2"/>
+
+    <rect x="95" y="380" width="20" height="30" rx="2"/>
+    <rect x="95" y="420" width="20" height="25" rx="2"/>
+    <rect x="145" y="410" width="35" height="35" rx="2"/>
+    <rect x="190" y="410" width="40" height="20" rx="2"/>
+    <rect x="190" y="440" width="30" height="30" rx="2"/>
+    <rect x="230" y="410" width="50" height="30" rx="2"/>
+    <rect x="230" y="450" width="40" height="35" rx="2"/>
+    <rect x="280" y="400" width="40" height="40" rx="2"/>
+    <rect x="280" y="450" width="30" height="35" rx="2"/>
+    <rect x="320" y="420" width="40" height="35" rx="2"/>
+    <rect x="370" y="420" width="35" height="35" rx="2"/>
+
+    <rect x="180" y="485" width="40" height="40" rx="2"/>
+    <rect x="230" y="495" width="50" height="30" rx="2"/>
+    <rect x="290" y="495" width="40" height="30" rx="2"/>
+    <rect x="395" y="465" width="10" height="60" rx="2"/>
+  </g>
+
+  <!-- Center GoMobile App Badge on QR -->
+  <rect x="215" y="335" width="70" height="70" rx="14" fill="#DE1D24" stroke="#FFFFFF" stroke-width="4"/>
+  <text x="250" y="372" font-family="'Inter', 'Segoe UI', sans-serif" font-size="28" font-weight="900" fill="#FFFFFF" text-anchor="middle">G</text>
+  <text x="250" y="393" font-family="'Inter', 'Segoe UI', sans-serif" font-size="8" font-weight="800" fill="#FEE2E2" text-anchor="middle" letter-spacing="0.5">GoMobile</text>
+
+  <!-- Supported Payment Icons Bar -->
+  <rect x="30" y="570" width="440" height="50" rx="12" fill="#F1F5F9"/>
+  <text x="250" y="592" font-family="'Inter', 'Segoe UI', sans-serif" font-size="11" font-weight="700" fill="#475569" text-anchor="middle">BCA • Mandiri • BRI • BNI • GoPay • OVO • DANA • ShopeePay • LinkAja</text>
+  <text x="250" y="608" font-family="'Inter', 'Segoe UI', sans-serif" font-size="10" font-weight="500" fill="#64748B" text-anchor="middle">Scan QRIS menggunakan aplikasi M-Banking atau E-Wallet apa saja</text>
+
+  <!-- Bottom Brand Note -->
+  <text x="250" y="648" font-family="'Inter', 'Segoe UI', sans-serif" font-size="12" font-weight="700" fill="#DE1D24" text-anchor="middle">GoMobile Learning &amp; Tutoring Platform</text>
+  <text x="250" y="664" font-family="'Inter', 'Segoe UI', sans-serif" font-size="10" font-weight="500" fill="#94A3B8" text-anchor="middle">Terdaftar dan Diawasi • Standar Pembayaran Nasional QRIS</text>
+</svg>

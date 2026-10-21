@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Daftar Akun GoMobile - Siswa &amp; Pengajar{% endblock %}
+
+{% block content %}
+<div class="container-narrow">
+  <div class="auth-wrapper" style="max-width:560px;">
+    <div style="text-align:center;margin-bottom:1.75rem;">
+      <div class="brand-icon" style="margin:0 auto 1rem;width:48px;height:48px;font-size:1.5rem;">G</div>
+      <h1 style="font-size:1.6rem;font-weight:800;color:var(--dark);">Pendaftaran Akun GoMobile</h1>
+      <p style="color:var(--gray-600);font-size:0.9rem;margin-top:0.35rem;">
+        Daftarkan identitas Anda ke dalam database untuk mendapatkan akses penuh belajar dan mengajar.
+      </p>
+    </div>
+
+    <!-- Role Switcher: Siswa / Pengajar -->
+    <div class="role-switcher-tabs">
+      <button type="button" class="role-tab-btn active" data-role="siswa">
+        <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
+        </svg>
+        Daftar Sebagai Siswa
+      </button>
+      <button type="button" class="role-tab-btn" data-role="pengajar">
+        <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+        </svg>
+        Daftar Sebagai Pengajar
+      </button>
+    </div>
+
+    <form method="POST" action="{{ url_for('register') }}">
+      <input type="hidden" name="role" id="roleInput" value="siswa">
+
+      <div class="form-group">
+        <label class="form-label" for="full_name">Nama Lengkap</label>
+        <input type="text" class="form-control" id="full_name" name="full_name" required placeholder="Contoh: Muhammad Fajri">
+      </div>
+
+      <div class="form-row-2">
+        <div class="form-group">
+          <label class="form-label" for="username">ID Pengguna (Username)</label>
+          <input type="text" class="form-control" id="username" name="username" required placeholder="Contoh: fajri_siswa">
+          <small style="color:var(--gray-500);font-size:0.75rem;">Digunakan untuk login ke sistem</small>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="phone">Nomor WhatsApp / HP</label>
+          <input type="tel" class="form-control" id="phone" name="phone" required placeholder="08xxxxxxxxxx">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="email">Alamat Email Aktif</label>
+        <input type="email" class="form-control" id="email" name="email" required placeholder="nama@email.com">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="school">Asal Sekolah / Universitas / Lembaga</label>
+        <input type="text" class="form-control" id="school" name="school" required placeholder="Contoh: SMA Negeri 3 / Guru Les Fisika">
+      </div>
+
+      <div class="form-row-2">
+        <div class="form-group">
+          <label class="form-label" for="password">Kata Sandi (Password)</label>
+          <input type="password" class="form-control" id="password" name="password" required minlength="6" placeholder="Minimal 6 karakter">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="confirm_password">Konfirmasi Sandi</label>
+          <input type="password" class="form-control" id="confirm_password" name="confirm_password" required minlength="6" placeholder="Ulangi kata sandi">
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:1.5rem;">
+        Daftar Sekarang &amp; Simpan ke Database
+      </button>
+    </form>
+
+    <div style="text-align:center;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--gray-200);font-size:0.9rem;color:var(--gray-600);">
+      Sudah memiliki akun terdaftar?
+      <a href="{{ url_for('login') }}" style="color:var(--primary);font-weight:700;text-decoration:none;">
+        Masuk Disini
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Netlify & build artifacts (generated automatically during build)
+.netlify/
+public/
+
+# Environment and secrets
+.env
+.env.*
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Database lock files
+*.db-journal
+*.db-wal

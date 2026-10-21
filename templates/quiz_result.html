@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Hasil Latihan Soal Kelas {{ result.grade }} SMA - GoMobile{% endblock %}
+
+{% block content %}
+<div class="container-narrow">
+
+  <!-- Halaman Terakhir Hasil Evaluasi (Benar / Salah & Skor) -->
+  <div class="result-card">
+    <span class="badge badge-primary" style="font-size:0.85rem;padding:0.35rem 0.9rem;margin-bottom:1rem;">
+      Hasil Evaluasi Latihan Kelas {{ result.grade }} SMA
+    </span>
+
+    <div class="score-circle">
+      <span class="score-number">{{ result.score|int if result.score == result.score|int else result.score }}</span>
+      <span class="score-label">Skor Akhir</span>
+    </div>
+
+    <h2 style="font-size:1.75rem;font-weight:800;color:var(--dark);margin-bottom:0.5rem;">
+      {% if result.score >= 80 %}
+        Luar Biasa! Pemahaman Sangat Baik 🎉
+      {% elif result.score >= 60 %}
+        Bagus! Tingkatkan Latihan Sedikit Lagi 👍
+      {% else %}
+        Tetap Semangat! Pelajari Pembahasan Di Bawah Ini 💪
+      {% endif %}
+    </h2>
+
+    <p style="color:var(--gray-600);font-size:0.95rem;max-width:550px;margin:0 auto;">
+      {% if result.score >= 80 %}
+        Kamu telah menguasai sebagian besar materi dasar dengan tingkat akurasi tinggi. Siap melangkah ke jenjang berikutnya atau tantangan UTBK-SNBT!
+      {% elif result.score >= 60 %}
+        Konsep dasar sudah kamu pahami dengan cukup baik. Perhatikan beberapa soal yang salah pada pembahasan di bawah ini.
+      {% else %}
+        Jangan berkecil hati. Jadikan hasil ini sebagai acuan untuk memperdalam kembali materi yang belum kamu kuasai.
+      {% endif %}
+    </p>
+
+    <!-- Stat Pills Benar vs Salah -->
+    <div class="stat-pills-row">
+      <div class="stat-pill stat-pill-benar">
+        <svg style="width:24px;height:24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+        </svg>
+        <span>{{ result.correct_answers }} Benar</span>
+      </div>
+
+      <div class="stat-pill stat-pill-salah">
+        <svg style="width:24px;height:24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+        <span>{{ result.wrong_answers }} Salah</span>
+      </div>
+
+      <div class="stat-pill stat-pill-total">
+        <svg style="width:24px;height:24px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+        </svg>
+        <span>Total {{ result.total_questions }} Soal</span>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem;">
+      <a href="{{ url_for('paket_soal', grade=result.grade) }}" class="btn btn-primary">
+        <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        Ulangi Latihan Ini
+      </a>
+      <a href="{{ url_for('ruang_belajar') }}" class="btn btn-secondary">
+        Pilih Jenjang Lain
+      </a>
+      <a href="{{ url_for('paket_berbayar') }}" class="btn btn-warning" style="font-weight:700;">
+        Upgrade Paket UTBK (QRIS) &rarr;
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Ulasan Pembahasan Lengkap Tiap Soal -->
+  <div style="margin-top:2.5rem;margin-bottom:2.5rem;">
+    <h3 style="font-size:1.4rem;font-weight:800;color:var(--dark);margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg style="width:24px;height:24px;color:var(--primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+      </svg>
+      Ulasan &amp; Pembahasan Kunci Jawaban Lengkap
+    </h3>
+
+    {% for item in review_items %}
+    <div class="review-item {% if item.is_correct %}is-correct{% else %}is-wrong{% endif %}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+        <span class="badge {% if item.is_correct %}badge-success{% else %}badge-danger{% endif %}">
+          {% if item.is_correct %}
+            &#10004; Jawaban Anda Benar
+          {% else %}
+            &#10008; Jawaban Anda Salah
+          {% endif %}
+        </span>
+        <span style="font-size:0.85rem;font-weight:700;color:var(--gray-500);">
+          {{ item.subject }} &bull; Soal #{{ loop.index }}
+        </span>
+      </div>
+
+      <div style="font-size:1.05rem;font-weight:600;color:var(--gray-900);margin-bottom:1rem;line-height:1.5;">
+        {{ item.question_text }}
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;background:#F8FAFC;padding:0.85rem 1rem;border-radius:var(--radius-md);margin-bottom:0.75rem;font-size:0.92rem;">
+        <div>
+          <span style="color:var(--gray-500);display:block;font-size:0.8rem;">Jawaban yang Anda Pilih:</span>
+          <strong style="color:{% if item.is_correct %}var(--success){% else %}var(--danger){% endif %};">
+            Pilihan {{ item.user_answer }} ({{ item.user_answer_text }})
+          </strong>
+        </div>
+        <div>
+          <span style="color:var(--gray-500);display:block;font-size:0.8rem;">Kunci Jawaban Benar:</span>
+          <strong style="color:var(--success);">
+            Pilihan {{ item.correct_option }} ({{ item.correct_option_text }})
+          </strong>
+        </div>
+      </div>
+
+      <!-- Kotak Pembahasan -->
+      <div class="explanation-box">
+        <strong style="display:block;margin-bottom:0.35rem;font-size:0.85rem;text-transform:uppercase;letter-spacing:0.5px;">
+          Kunci Pembahasan &amp; Konsep Dasar:
+        </strong>
+        <div style="white-space:pre-line;">{{ item.explanation }}</div>
+      </div>
+    </div>
+    {% endfor %}
+
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+[build]
+  command = "python prepare_deploy.py"
+  publish = "public"
+  functions = "netlify/functions"
+
+[build.environment]
+  PYTHON_VERSION = "3.11"
+
+# Ensure Jinja2 templates and seed database are bundled with the serverless function
+[functions]
+  included_files = ["templates/**", "gomobile.db"]
+
+# Serve static assets directly via Netlify CDN
+[[redirects]]
+  from = "/static/*"
+  to = "/static/:splat"
+  status = 200
+
+# Route all application traffic to the Flask Serverless function
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/app"
+  status = 200

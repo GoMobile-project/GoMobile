@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Ruang Belajar GoMobile - Latihan Soal SMA Kelas 10, 11, 12{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- Header Banner -->
+  <div class="grade-header-banner">
+    <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.18);padding:0.3rem 0.8rem;border-radius:999px;font-size:0.8rem;font-weight:700;margin-bottom:0.75rem;">
+      <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+      </svg>
+      Ruang Belajar Mandiri Siswa
+    </div>
+    <h1 style="font-size:clamp(1.6rem, 3.5vw, 2.4rem);font-weight:800;margin-bottom:0.5rem;">
+      Latihan Soal Basic SMA Kelas 10, 11 &amp; 12
+    </h1>
+    <p style="font-size:1rem;color:#E0E7FF;max-width:760px;line-height:1.6;">
+      Pilih paket belajar berjenjang di bawah ini. Masing-masing paket belajar dipisah menjadi halaman tersendiri dengan sistem pengerjaan interaktif. Setelah selesai mengerjakan, sistem otomatis menghitung jumlah <strong>benar dan salah</strong> serta memberikan pembahasan lengkap.
+    </p>
+  </div>
+
+  <!-- Cards Grid Jenjang SMA -->
+  <div class="grades-cards-grid">
+    
+    <!-- KELAS 10 SMA -->
+    <div class="grade-card">
+      <div class="grade-card-top grade-10-bg">
+        <span class="grade-card-badge">{{ count_10 }} Soal Tersedia</span>
+        <h2 style="font-size:1.6rem;font-weight:800;margin-bottom:0.25rem;">Paket Belajar Kelas 10</h2>
+        <p style="font-size:0.9rem;opacity:0.95;">Fase E SMA - Pondasi Sains, Matematika &amp; Bahasa</p>
+      </div>
+      <div class="grade-card-body">
+        <p style="font-size:0.92rem;color:var(--gray-600);line-height:1.6;">
+          Latihan pemahaman konsep awal tingkat SMA: persamaan nilai mutlak, GLBB mekanika fisika, konfigurasi elektron kimia, sel prokariotik-eukariotik, dan teks LHO.
+        </p>
+        <div class="grade-subjects-tags">
+          <span class="subject-tag">Matematika Dasar</span>
+          <span class="subject-tag">Fisika Kinematika</span>
+          <span class="subject-tag">Struktur Atom</span>
+          <span class="subject-tag">Sitologi Biologi</span>
+          <span class="subject-tag">Bahasa Indonesia</span>
+        </div>
+        <div style="margin-top:auto;padding-top:1rem;">
+          <a href="{{ url_for('paket_soal', grade=10) }}" class="btn btn-primary btn-block btn-lg" style="background:#0284C7;">
+            Buka Halaman Paket Kelas 10 &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- KELAS 11 SMA -->
+    <div class="grade-card">
+      <div class="grade-card-top grade-11-bg">
+        <span class="grade-card-badge">{{ count_11 }} Soal Tersedia</span>
+        <h2 style="font-size:1.6rem;font-weight:800;margin-bottom:0.25rem;">Paket Belajar Kelas 11</h2>
+        <p style="font-size:0.9rem;opacity:0.95;">Fase F Dasar - Pendalaman Aljabar &amp; Sains Lanjut</p>
+      </div>
+      <div class="grade-card-body">
+        <p style="font-size:0.92rem;color:var(--gray-600);line-height:1.6;">
+          Uji kesiapan tingkat menengah: barisan dan deret aritmetika, hukum termodinamika energi kalor, perhitungan derajat ionisasi pH asam-basa, anatomi ginjal, serta English conditionals.
+        </p>
+        <div class="grade-subjects-tags">
+          <span class="subject-tag">Deret Aritmetika</span>
+          <span class="subject-tag">Termodinamika</span>
+          <span class="subject-tag">Larutan Asam Basa</span>
+          <span class="subject-tag">Ekskresi Manusia</span>
+          <span class="subject-tag">English Grammar</span>
+        </div>
+        <div style="margin-top:auto;padding-top:1rem;">
+          <a href="{{ url_for('paket_soal', grade=11) }}" class="btn btn-primary btn-block btn-lg" style="background:#4F46E5;">
+            Buka Halaman Paket Kelas 11 &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- KELAS 12 SMA -->
+    <div class="grade-card">
+      <div class="grade-card-top grade-12-bg">
+        <span class="grade-card-badge">{{ count_12 }} Soal Tersedia</span>
+        <h2 style="font-size:1.6rem;font-weight:800;margin-bottom:0.25rem;">Paket Belajar Kelas 12</h2>
+        <p style="font-size:0.9rem;opacity:0.95;">Fase F Lanjutan - Kalkulus &amp; Kesiapan UTBK</p>
+      </div>
+      <div class="grade-card-body">
+        <p style="font-size:0.92rem;color:var(--gray-600);line-height:1.6;">
+          Paket pemantapan kelulusan dan persiapan seleksi nasional: limit fungsi aljabar pemfaktoran, induksi medan magnet gaya Lorentz, reaksi redoks sel Volta, silogisme penalaran, serta kaidah PUEBI baku.
+        </p>
+        <div class="grade-subjects-tags">
+          <span class="subject-tag">Limit Aljabar</span>
+          <span class="subject-tag">Gaya Lorentz</span>
+          <span class="subject-tag">Sel Elektrokimia</span>
+          <span class="subject-tag">Silogisme Logika</span>
+          <span class="subject-tag">Kaidah PUEBI</span>
+        </div>
+        <div style="margin-top:auto;padding-top:1rem;">
+          <a href="{{ url_for('paket_soal', grade=12) }}" class="btn btn-primary btn-block btn-lg" style="background:#7C3AED;">
+            Buka Halaman Paket Kelas 12 &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Riwayat Hasil Latihan Siswa -->
+  {% if recent_results %}
+  <div style="margin-top:3rem;background:var(--white);border-radius:var(--radius-xl);border:1px solid var(--gray-200);padding:2rem;box-shadow:var(--shadow-sm);">
+    <h3 style="font-size:1.3rem;font-weight:800;color:var(--dark);margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg style="width:22px;height:22px;color:var(--success);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      Riwayat Pengerjaan Latihan Anda
+    </h3>
+    <div class="data-table-wrapper" style="box-shadow:none;border-radius:var(--radius-md);">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Paket Jenjang</th>
+            <th>Waktu Dikerjakan</th>
+            <th>Hasil Benar</th>
+            <th>Hasil Salah</th>
+            <th>Skor Akhir</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for res in recent_results %}
+          <tr>
+            <td><strong>Kelas {{ res.grade }} SMA</strong></td>
+            <td>{{ res.created_at }}</td>
+            <td><span class="badge badge-success">{{ res.correct_answers }} Benar</span></td>
+            <td><span class="badge badge-danger">{{ res.wrong_answers }} Salah</span></td>
+            <td><strong style="color:var(--primary);font-size:1.1rem;">{{ res.score }}</strong> / 100</td>
+            <td>
+              <a href="{{ url_for('quiz_result', result_id=res.id) }}" class="btn btn-secondary" style="padding:0.35rem 0.75rem;font-size:0.8rem;">
+                Lihat Pembahasan
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

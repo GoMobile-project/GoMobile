@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Ruang Baca GoMobile - Artikel Hits, Pahlawan Sejarah &amp; Tips UTBK SNBT{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- Header Banner Ruang Baca -->
+  <div style="background:linear-gradient(135deg, #064E3B 0%, #065F46 50%, #047857 100%);color:#FFF;border-radius:var(--radius-xl);padding:2.5rem 1.75rem;margin-bottom:2rem;box-shadow:var(--shadow-md);">
+    <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.18);padding:0.3rem 0.8rem;border-radius:999px;font-size:0.8rem;font-weight:700;margin-bottom:0.75rem;">
+      <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
+      </svg>
+      Perpustakaan Digital Siswa &amp; Guru
+    </div>
+    <h1 style="font-size:clamp(1.75rem, 3.5vw, 2.5rem);font-weight:800;margin-bottom:0.6rem;">
+      Ruang Baca GoMobile
+    </h1>
+    <p style="font-size:1rem;color:#D1FAE5;max-width:760px;line-height:1.6;">
+      Temukan artikel terpopuler yang sedang hits tentang dunia pendidikan terkini, biografi inspiratif para pahlawan dan sejarah pendidikan nasional, serta panduan taktis persiapan ujian TKA, UTBK, dan SNBT.
+    </p>
+  </div>
+
+  <!-- Filter Kategori & Pencarian -->
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:2rem;">
+    <!-- Filter Chips -->
+    <div class="article-filter-bar" style="margin-bottom:0;">
+      <a href="{{ url_for('ruang_baca', kat='semua') }}" class="filter-chip {% if not current_cat or current_cat == 'semua' %}active{% endif %}">
+        Semua Topik
+      </a>
+      <a href="{{ url_for('ruang_baca', kat='hits') }}" class="filter-chip {% if current_cat == 'hits' %}active{% endif %}">
+        🔥 Hits Pendidikan
+      </a>
+      <a href="{{ url_for('ruang_baca', kat='pahlawan_sejarah') }}" class="filter-chip {% if current_cat == 'pahlawan_sejarah' %}active{% endif %}">
+        🏛️ Pahlawan &amp; Sejarah
+      </a>
+      <a href="{{ url_for('ruang_baca', kat='utbk_snbt_tka') }}" class="filter-chip {% if current_cat == 'utbk_snbt_tka' %}active{% endif %}">
+        🎯 Pembahasan TKA, UTBK &amp; SNBT
+      </a>
+    </div>
+
+    <!-- Search Box -->
+    <form method="GET" action="{{ url_for('ruang_baca') }}" style="display:flex;gap:0.4rem;flex:1;max-width:320px;">
+      {% if current_cat and current_cat != 'semua' %}
+      <input type="hidden" name="kat" value="{{ current_cat }}">
+      {% endif %}
+      <input type="text" name="q" value="{{ search_query or '' }}" placeholder="Cari judul artikel..." class="form-control" style="padding:0.45rem 0.85rem;font-size:0.88rem;">
+      <button type="submit" class="btn btn-primary" style="padding:0.45rem 0.85rem;">
+        <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+      </button>
+    </form>
+  </div>
+
+  <!-- Grid Artikel -->
+  {% if articles %}
+  <div class="articles-grid">
+    {% for article in articles %}
+    <a href="{{ url_for('artikel_detail', article_id=article.id) }}" class="article-card">
+      <div class="article-card-header {% if article.category == 'hits' %}article-header-hits{% elif article.category == 'pahlawan_sejarah' %}article-header-pahlawan{% else %}article-header-utbk{% endif %}">
+        <span class="badge" style="background:rgba(255,255,255,0.25);color:#FFF;backdrop-filter:blur(4px);">
+          {{ article.badge or 'Artikel' }}
+        </span>
+        <span style="color:#FFF;font-size:0.8rem;opacity:0.9;">
+          ⏱️ {{ article.read_time }}
+        </span>
+      </div>
+
+      <div class="article-card-body">
+        <h2 class="article-card-title">{{ article.title }}</h2>
+        <p class="article-card-summary">{{ article.summary }}</p>
+
+        <div class="article-card-meta">
+          <span>Oleh: <strong>{{ article.author }}</strong></span>
+          <span style="color:var(--primary);font-weight:700;">Baca Selengkapnya &rarr;</span>
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="background:var(--white);padding:3rem 1.5rem;text-align:center;border-radius:var(--radius-lg);border:1px solid var(--gray-200);">
+    <p style="color:var(--gray-500);font-size:1.1rem;">Belum ada artikel yang sesuai dengan filter atau pencarian Anda.</p>
+    <a href="{{ url_for('ruang_baca') }}" class="btn btn-secondary" style="margin-top:1rem;">Tampilkan Semua Artikel</a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Pantau Nilai Siswa - Portal Pengajar GoMobile{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- Breadcrumb & Header -->
+  <div style="margin-bottom:1.5rem;">
+    <a href="{{ url_for('teacher_dashboard') }}" style="color:var(--primary);font-size:0.85rem;font-weight:700;text-decoration:none;">
+      &larr; Kembali ke Dashboard Pengajar
+    </a>
+    <h1 style="font-size:1.75rem;font-weight:800;color:var(--dark);margin-top:0.25rem;">
+      Rekapitulasi Nilai &amp; Hasil Latihan Siswa
+    </h1>
+    <p style="color:var(--gray-600);font-size:0.9rem;">
+      Pantau performa belajar siswa pada latihan soal basic Kelas 10, 11, dan 12 SMA di Ruang Belajar.
+    </p>
+  </div>
+
+  <div class="teacher-layout">
+
+    <!-- Sidebar Menu Navigasi Pengajar -->
+    <aside class="teacher-sidebar">
+      <ul class="teacher-nav-list">
+        <li class="teacher-nav-item"><a href="{{ url_for('teacher_dashboard') }}">Ringkasan Dashboard</a></li>
+        <li class="teacher-nav-item"><a href="{{ url_for('teacher_bank_soal') }}">Kelola Bank Soal (Kls 10-12)</a></li>
+        <li class="teacher-nav-item"><a href="{{ url_for('teacher_articles') }}">Kelola Ruang Baca</a></li>
+        <li class="teacher-nav-item"><a href="{{ url_for('teacher_verifikasi_bayar') }}">Verifikasi Pesanan QRIS</a></li>
+        <li class="teacher-nav-item"><a href="{{ url_for('teacher_nilai_siswa') }}" class="active">Pantau Nilai Siswa</a></li>
+      </ul>
+    </aside>
+
+    <!-- Konten Rekap Nilai -->
+    <div>
+      <div style="background:var(--white);border-radius:var(--radius-xl);border:1px solid var(--gray-200);padding:2rem;box-shadow:var(--shadow-sm);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+          <h2 style="font-size:1.3rem;font-weight:800;color:var(--dark);">
+            Daftar Skor Pengerjaan Latihan Soal
+          </h2>
+          <span class="badge badge-primary" style="font-size:0.85rem;padding:0.35rem 0.85rem;">
+            Total: {{ results|length }} Pengerjaan
+          </span>
+        </div>
+
+        {% if results %}
+        <div class="data-table-wrapper" style="box-shadow:none;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Nama Siswa &amp; Sekolah</th>
+                <th>Paket Kelas</th>
+                <th>Benar</th>
+                <th>Salah</th>
+                <th>Skor</th>
+                <th>Status Pemahaman</th>
+                <th>Waktu</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for res in results %}
+              <tr>
+                <td>
+                  <strong>{{ res.student_name }}</strong>
+                  <div style="font-size:0.75rem;color:var(--gray-500);">
+                    {{ res.school or 'Siswa Mandiri' }} &bull; {{ res.email }}
+                  </div>
+                </td>
+                <td><span class="badge badge-primary">Kelas {{ res.grade }} SMA</span></td>
+                <td><span class="badge badge-success">{{ res.correct_answers }} Benar</span></td>
+                <td><span class="badge badge-danger">{{ res.wrong_answers }} Salah</span></td>
+                <td>
+                  <strong style="color:var(--primary);font-size:1.15rem;">
+                    {{ res.score|int if res.score == res.score|int else res.score }}
+                  </strong>
+                  <span style="font-size:0.75rem;color:var(--gray-500);">/100</span>
+                </td>
+                <td>
+                  {% if res.score >= 80 %}
+                    <span class="badge badge-success">Sangat Baik</span>
+                  {% elif res.score >= 60 %}
+                    <span class="badge badge-warning">Cukup</span>
+                  {% else %}
+                    <span class="badge badge-danger">Perlu Bimbingan</span>
+                  {% endif %}
+                </td>
+                <td style="color:var(--gray-500);font-size:0.82rem;">{{ res.created_at }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p style="text-align:center;padding:2.5rem;color:var(--gray-500);">Belum ada data pengerjaan latihan siswa.</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

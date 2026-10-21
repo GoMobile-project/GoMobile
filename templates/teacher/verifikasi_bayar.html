@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Verifikasi Pesanan QRIS - Portal Pengajar GoMobile{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- Breadcrumb & Header -->
+  <div style="margin-bottom:1.5rem;">
+    <a href="{{ url_for('teacher_dashboard') }}" style="color:var(--primary);font-size:0.85rem;font-weight:700;text-decoration:none;">
+      &larr; Kembali ke Dashboard Pengajar
+    </a>
+    <h1 style="font-size:1.75rem;font-weight:800;color:var(--dark);margin-top:0.25rem;">
+      Verifikasi Pesanan &amp; Pembayaran QRIS Siswa
+    </h1>
+    <p style="color:var(--gray-600);font-size:0.9rem;">
+      Konfirmasi penerimaan pembayaran QRIS untuk membuka akses materi premium paket UTBK, SNBT, dan TKA.
+    </p>
+  </div>
+
+  <div class="teacher-layout">
+
+    <!-- Sidebar Menu Navigasi Pengajar -->
+    <aside class="teacher-sidebar">
+      <ul class="teacher-nav-list">
+        <li class="teacher-nav-item"><a href="{{ url_for('teacher_dashboard') }}">Ringkasan Dashboard</a></li>
+        <li class="teacher-nav-item"><a href="{{ url_for('teacher_bank_soal') }}">Kelola Bank Soal (Kls 10-12)</a></li>
+        <li class="teacher-nav-item"><a href="{{ url_for('teacher_articles') }}">Kelola Ruang Baca</a></li>
+        <li class="teacher-nav-item"><a href="{{ url_for('teacher_verifikasi_bayar') }}" class="active">Verifikasi Pesanan QRIS</a></li>
+        <li class="teacher-nav-item"><a href="{{ url_for('teacher_nilai_siswa') }}">Pantau Nilai Siswa</a></li>
+      </ul>
+    </aside>
+
+    <!-- Konten Verifikasi Pembayaran -->
+    <div>
+      <div style="background:var(--white);border-radius:var(--radius-xl);border:1px solid var(--gray-200);padding:2rem;box-shadow:var(--shadow-sm);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+          <h2 style="font-size:1.3rem;font-weight:800;color:var(--dark);">
+            Daftar Transaksi Pembelian Paket QRIS
+          </h2>
+          <span class="badge badge-warning" style="font-size:0.85rem;padding:0.35rem 0.85rem;">
+            Total: {{ orders|length }} Pesanan
+          </span>
+        </div>
+
+        {% if orders %}
+        <div class="data-table-wrapper" style="box-shadow:none;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Kode Order</th>
+                <th>Nama Siswa &amp; Kontak</th>
+                <th>Paket Berbayar</th>
+                <th>Nominal</th>
+                <th>Metode</th>
+                <th>Status</th>
+                <th>Aksi Guru</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for order in orders %}
+              <tr>
+                <td>
+                  <strong>{{ order.order_code }}</strong>
+                  <div style="font-size:0.75rem;color:var(--gray-500);">{{ order.created_at }}</div>
+                </td>
+                <td>
+                  <strong>{{ order.buyer_name }}</strong>
+                  <div style="font-size:0.75rem;color:var(--gray-500);">
+                    {{ order.buyer_email }} &bull; {{ order.buyer_phone }}
+                  </div>
+                  {% if order.proof_note %}
+                  <div style="font-size:0.75rem;color:var(--primary);margin-top:2px;">
+                    Catatan: "{{ order.proof_note }}"
+                  </div>
+                  {% endif %}
+                </td>
+                <td>{{ order.package_title }}</td>
+                <td>
+                  <strong style="color:var(--primary);">
+                    Rp {{ "{:,}".format(order.amount).replace(',', '.') }},00
+                  </strong>
+                </td>
+                <td>
+                  <span class="badge" style="background:#FEE2E2;color:#DE1D24;font-weight:800;">
+                    QRIS
+                  </span>
+                </td>
+                <td>
+                  {% if order.payment_status in ['paid', 'verified'] %}
+                    <span class="badge badge-success">&#10004; Lunas / Terverifikasi</span>
+                  {% else %}
+                    <span class="badge badge-warning">&#9203; Menunggu Verifikasi</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if order.payment_status not in ['verified'] %}
+                  <form method="POST" action="{{ url_for('verify_order', order_id=order.id) }}">
+                    <button type="submit" class="btn btn-success" style="padding:0.35rem 0.75rem;font-size:0.8rem;">
+                      Verifikasi
+                    </button>
+                  </form>
+                  {% else %}
+                  <span style="font-size:0.8rem;color:var(--success);font-weight:700;">Sudah Aktif</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p style="text-align:center;padding:2.5rem;color:var(--gray-500);">Belum ada riwayat pesanan paket QRIS.</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

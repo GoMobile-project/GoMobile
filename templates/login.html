@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Masuk ke GoMobile - Portal Siswa &amp; Pengajar{% endblock %}
+
+{% block content %}
+<div class="container-narrow">
+  <div class="auth-wrapper">
+    <div style="text-align:center;margin-bottom:1.75rem;">
+      <div class="brand-icon" style="margin:0 auto 1rem;width:48px;height:48px;font-size:1.5rem;">G</div>
+      <h1 style="font-size:1.6rem;font-weight:800;color:var(--dark);">Masuk ke GoMobile</h1>
+      <p style="color:var(--gray-600);font-size:0.9rem;margin-top:0.35rem;">
+        Silakan masuk menggunakan ID atau Email Anda yang terdaftar di database.
+      </p>
+    </div>
+
+    <!-- Role Switcher: Siswa / Pengajar -->
+    <div class="role-switcher-tabs">
+      <button type="button" class="role-tab-btn active" data-role="siswa">
+        <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
+        </svg>
+        Siswa
+      </button>
+      <button type="button" class="role-tab-btn" data-role="pengajar">
+        <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+        </svg>
+        Pengajar
+      </button>
+    </div>
+
+    <p id="roleHelperText" style="font-size:0.82rem;color:var(--primary);margin-bottom:1.25rem;text-align:center;font-weight:600;">
+      Mode Siswa: Akses ruang belajar, latihan soal, dan materi bimbingan.
+    </p>
+
+    <form method="POST" action="{{ url_for('login') }}">
+      <input type="hidden" name="role" id="roleInput" value="siswa">
+
+      <div class="form-group">
+        <label class="form-label" for="identity">ID Pengguna atau Email Terdaftar</label>
+        <input type="text" class="form-control" id="identity" name="identity" required placeholder="Contoh: siswa_ahmad atau guru@gomobile.id">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="password">Kata Sandi (Password)</label>
+        <input type="password" class="form-control" id="password" name="password" required placeholder="Masukkan kata sandi akun Anda">
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:1.5rem;">
+        Masuk Sekarang
+      </button>
+    </form>
+
+    <div style="text-align:center;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--gray-200);font-size:0.9rem;color:var(--gray-600);">
+      Belum memiliki akun?
+      <a href="{{ url_for('register') }}" style="color:var(--primary);font-weight:700;text-decoration:none;">
+        Daftar Akun Baru Disini
+      </a>
+    </div>
+
+    <!-- Quick Demo Accounts for Testing -->
+    <div style="margin-top:1.5rem;background:#F1F5F9;border-radius:var(--radius-md);padding:1rem;font-size:0.82rem;color:var(--gray-700);">
+      <strong style="color:var(--dark);display:block;margin-bottom:0.4rem;">Informasi Akun Database Siap Pakai:</strong>
+      <div style="display:flex;flex-direction:column;gap:0.3rem;">
+        <div>&bull; <strong>Akun Guru (Pengajar):</strong> ID: <code>guru_budi</code> | Password: <code>guru123</code></div>
+        <div>&bull; <strong>Akun Siswa:</strong> ID: <code>siswa_ahmad</code> | Password: <code>siswa123</code></div>
+      </div>
+      <div style="margin-top:0.4rem;color:var(--gray-500);font-size:0.78rem;">
+        *Anda juga dapat mendaftar akun baru siswa maupun pengajar langsung melalui menu daftar.
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

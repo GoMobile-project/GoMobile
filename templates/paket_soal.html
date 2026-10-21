@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Paket Belajar Kelas {{ grade }} SMA - GoMobile{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="quiz-container">
+
+    <!-- Top Navigation & Header -->
+    <div style="margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;">
+      <a href="{{ url_for('ruang_belajar') }}" class="btn btn-secondary" style="padding:0.4rem 0.85rem;font-size:0.85rem;">
+        &larr; Kembali ke Ruang Belajar
+      </a>
+      <span class="badge badge-primary" style="font-size:0.85rem;padding:0.35rem 0.85rem;">
+        Paket Latihan Kelas {{ grade }} SMA
+      </span>
+    </div>
+
+    <!-- Quiz Header Bar with Progress Bar -->
+    <div class="quiz-header-bar">
+      <div>
+        <h2 style="font-size:1.25rem;font-weight:800;color:var(--dark);">
+          Ujian Mandiri Kelas {{ grade }} SMA
+        </h2>
+        <span style="font-size:0.85rem;color:var(--gray-500);">
+          Soal No. <strong id="currentQuestionNumber" style="color:var(--primary);font-size:1rem;">1</strong> dari {{ questions|length }}
+        </span>
+      </div>
+
+      <div class="quiz-progress-wrap">
+        <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--gray-500);margin-bottom:4px;font-weight:600;">
+          <span>Progress Pengerjaan</span>
+          <span id="progressText">Langkah Belajar</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="quizProgressBar" style="width: {{ (1 / questions|length * 100)|round }}%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Pembungkus Soal -->
+    <form id="quizForm" method="POST" action="{{ url_for('submit_quiz') }}">
+      <input type="hidden" name="grade" value="{{ grade }}">
+
+      {% for q in questions %}
+      <div class="quiz-question-card" id="qCard-{{ loop.index0 }}" style="{% if not loop.first %}display:none;{% endif %}">
+        
+        <div class="question-box">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+            <span class="question-subject-badge">{{ q.subject }}</span>
+            <span style="font-size:0.82rem;color:var(--gray-400);font-weight:600;">Nomor {{ loop.index }}</span>
+          </div>
+
+          <div class="question-text">
+            {{ q.question_text }}
+          </div>
+
+          <!-- Pilihan Jawaban A, B, C, D, E -->
+          <div class="options-list">
+            
+            <!-- Pilihan A -->
+            <label class="option-item" for="q{{ q.id }}_A">
+              <input type="radio" id="q{{ q.id }}_A" name="answer_{{ q.id }}" value="A" style="display:none;" required>
+              <div class="option-key">A</div>
+              <div class="option-label">{{ q.option_a }}</div>
+            </label>
+
+            <!-- Pilihan B -->
+            <label class="option-item" for="q{{ q.id }}_B">
+              <input type="radio" id="q{{ q.id }}_B" name="answer_{{ q.id }}" value="B" style="display:none;">
+              <div class="option-key">B</div>
+              <div class="option-label">{{ q.option_b }}</div>
+            </label>
+
+            <!-- Pilihan C -->
+            <label class="option-item" for="q{{ q.id }}_C">
+              <input type="radio" id="q{{ q.id }}_C" name="answer_{{ q.id }}" value="C" style="display:none;">
+              <div class="option-key">C</div>
+              <div class="option-label">{{ q.option_c }}</div>
+            </label>
+
+            <!-- Pilihan D -->
+            <label class="option-item" for="q{{ q.id }}_D">
+              <input type="radio" id="q{{ q.id }}_D" name="answer_{{ q.id }}" value="D" style="display:none;">
+              <div class="option-key">D</div>
+              <div class="option-label">{{ q.option_d }}</div>
+            </label>
+
+            <!-- Pilihan E -->
+            <label class="option-item" for="q{{ q.id }}_E">
+              <input type="radio" id="q{{ q.id }}_E" name="answer_{{ q.id }}" value="E" style="display:none;">
+              <div class="option-key">E</div>
+              <div class="option-label">{{ q.option_e }}</div>
+            </label>
+
+          </div>
+        </div>
+
+      </div>
+      {% endfor %}
+
+      <!-- Footer Tombol Navigasi Soal -->
+      <div class="quiz-nav-footer">
+        <button type="button" class="btn btn-secondary" id="prevQuestionBtn" style="visibility:hidden;">
+          &larr; Soal Sebelumnya
+        </button>
+
+        <div>
+          <button type="button" class="btn btn-primary" id="nextQuestionBtn">
+            Soal Selanjutnya &rarr;
+          </button>
+          
+          <button type="submit" class="btn btn-success btn-lg" id="submitQuizBtn" style="display:none;font-weight:800;">
+            <svg style="width:20px;height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            Selesai &amp; Lihat Hasil (Benar / Salah)
+          </button>
+        </div>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+{% endblock %}
