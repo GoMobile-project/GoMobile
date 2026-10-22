@@ -1,5 +1,5 @@
 [build]
-  command = "python prepare_deploy.py"
+  command = "python3 prepare_deploy.py || python prepare_deploy.py"
   publish = "public"
   functions = "netlify/functions"
 
