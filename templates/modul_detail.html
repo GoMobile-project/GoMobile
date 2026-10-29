@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Modul Pembelajaran: {{ subject.title }} - GoMobile{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div style="font-size:0.85rem;color:var(--gray-500);margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+    <a href="{{ url_for('ruang_belajar') }}" style="color:var(--primary);text-decoration:none;">Ruang Belajar</a>
+    <span>&rsaquo;</span>
+    <a href="{{ url_for('modul_katalog') }}" style="color:var(--primary);text-decoration:none;">Katalog Modul</a>
+    <span>&rsaquo;</span>
+    <span style="color:var(--gray-700);font-weight:600;">{{ subject.title }}</span>
+  </div>
+
+  <!-- Header Banner Modul -->
+  <div style="background:linear-gradient(135deg, {{ subject.color }} 0%, #0F172A 100%);color:#FFF;border-radius:var(--radius-xl);padding:2.5rem 2rem;margin-bottom:2.25rem;box-shadow:var(--shadow-md);">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+      <div style="max-width:760px;">
+        <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.2);padding:0.35rem 0.9rem;border-radius:999px;font-size:0.82rem;font-weight:700;margin-bottom:0.85rem;">
+          <span>{{ subject.icon }}</span>
+          <span>Modul Interaktif: {{ subject.badge }}</span>
+        </div>
+        <h1 style="font-size:clamp(1.75rem, 3.8vw, 2.5rem);font-weight:800;margin-bottom:0.75rem;">
+          {{ subject.title }}
+        </h1>
+        <p style="font-size:1.02rem;color:#E2E8F0;line-height:1.65;">
+          {{ subject.overview }}
+        </p>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.12);backdrop-filter:blur(10px);padding:1.5rem;border-radius:var(--radius-lg);border:1px solid rgba(255,255,255,0.2);text-align:center;min-width:240px;">
+        <div style="font-size:0.82rem;color:#CBD5E1;text-transform:uppercase;font-weight:700;">Simulasi CAT Berbobot</div>
+        <div style="font-size:2rem;font-weight:800;color:#FBBF24;margin:0.25rem 0;">25 Soal</div>
+        <div style="font-size:0.8rem;color:#E2E8F0;margin-bottom:1rem;">Dilengkapi Jam Real-time Laptop</div>
+        <a href="{{ url_for('simulation_quiz', slug=subject.slug) }}" class="btn btn-primary btn-block" style="background:#FBBF24;color:#78350F;font-weight:800;border:none;">
+          Mulai Simulasi CAT &rarr;
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="responsive-2col">
+    
+    <!-- Kolom Kiri: Isi Bab-Bab Modul -->
+    <div>
+      <h2 style="font-size:1.4rem;font-weight:800;color:var(--dark);margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg style="width:22px;height:22px;color:{{ subject.color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+        </svg>
+        Daftar Bab &amp; Ringkasan Materi Esensial
+      </h2>
+
+      {% for ch in subject.chapters %}
+      <div style="background:#FFF;border-radius:var(--radius-lg);border:1px solid var(--gray-200);box-shadow:var(--shadow-sm);margin-bottom:1.5rem;overflow:hidden;">
+        
+        <div style="padding:1.2rem 1.5rem;background:#F8FAFC;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between;gap:0.75rem;">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <span class="badge" style="background:{{ subject.color }}20;color:{{ subject.color }};font-weight:800;">
+              Bab #{{ loop.index }}
+            </span>
+            <h3 style="font-size:1.15rem;font-weight:800;color:var(--dark);margin:0;">
+              {{ ch.title }}
+            </h3>
+          </div>
+        </div>
+
+        <div style="padding:1.5rem;">
+          <div style="font-size:0.95rem;color:var(--gray-700);line-height:1.7;white-space:pre-line;margin-bottom:1.25rem;">
+            {{ ch.content }}
+          </div>
+
+          {% if ch.key_points %}
+          <div style="background:#F1F5F9;border-left:4px solid {{ subject.color }};padding:1rem 1.25rem;border-radius:0 var(--radius-md) var(--radius-md) 0;margin-top:1rem;">
+            <strong style="color:var(--dark);font-size:0.88rem;display:block;margin-bottom:0.4rem;">
+              Poin Kunci &amp; Konsep Penting:
+            </strong>
+            <ul style="margin:0;padding-left:1.2rem;font-size:0.88rem;color:var(--gray-700);line-height:1.6;">
+              {% for pt in ch.key_points %}
+              <li>{{ pt }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+        </div>
+
+      </div>
+      {% endfor %}
+
+      <!-- Box Ajakan Mengerjakan Kuis -->
+      <div style="background:linear-gradient(135deg, #F8FAFC 0%, #EEF2F6 100%);border:2px dashed {{ subject.color }};border-radius:var(--radius-xl);padding:2rem;text-align:center;margin-top:2rem;">
+        <h3 style="font-size:1.35rem;font-weight:800;color:var(--dark);margin-bottom:0.5rem;">
+          Siap Menguji Penguasaan Materi {{ subject.title }}?
+        </h3>
+        <p style="font-size:0.92rem;color:var(--gray-600);max-width:560px;margin:0 auto 1.25rem;line-height:1.6;">
+          Uji pemahaman Anda melalui <strong>simulasi 25 butir soal HOTS</strong> dengan waktu real-time yang mencatat durasi serta jam detik di laptop Anda.
+        </p>
+        <a href="{{ url_for('simulation_quiz', slug=subject.slug) }}" class="btn btn-primary btn-lg" style="background:{{ subject.color }};border-color:{{ subject.color }};padding:0.75rem 2rem;font-weight:800;">
+          Mulai Simulasi 25 Soal Sekarang &rarr;
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Kolom Kanan: Sidebar Navigasi Bab & Rekomendasi -->
+    <div>
+      <div style="background:#FFF;border-radius:var(--radius-lg);border:1px solid var(--gray-200);padding:1.5rem;box-shadow:var(--shadow-sm);margin-bottom:1.5rem;position:sticky;top:90px;">
+        <h3 style="font-size:1.1rem;font-weight:800;color:var(--dark);margin-bottom:1rem;display:flex;align-items:center;gap:0.4rem;">
+          <span>📌</span>
+          <span>Navigasi Bab Modul</span>
+        </h3>
+
+        <div style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1.5rem;">
+          {% for ch in subject.chapters %}
+          <div style="padding:0.6rem 0.85rem;background:#F8FAFC;border-radius:var(--radius-sm);font-size:0.86rem;color:var(--gray-700);border-left:3px solid {{ subject.color }};">
+            <strong>Bab {{ loop.index }}:</strong> {{ ch.title }}
+          </div>
+          {% endfor %}
+        </div>
+
+        <div style="border-top:1px solid var(--gray-200);padding-top:1.25rem;">
+          <a href="{{ url_for('simulation_quiz', slug=subject.slug) }}" class="btn btn-primary btn-block" style="background:{{ subject.color }};border-color:{{ subject.color }};font-weight:800;margin-bottom:0.6rem;">
+            ⏱️ Kerjakan 25 Soal CAT
+          </a>
+          <a href="{{ url_for('modul_katalog') }}" class="btn btn-secondary btn-block" style="font-size:0.85rem;">
+            &larr; Kembali ke Katalog
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

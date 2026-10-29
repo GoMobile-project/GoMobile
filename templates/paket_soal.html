@@ -1,39 +1,93 @@
 {% extends "base.html" %}
 
-{% block title %}Paket Belajar Kelas {{ grade }} SMA - GoMobile{% endblock %}
+{% block title %}Bank Soal Kelas {{ grade }} SMA - GoMobile{% endblock %}
 
 {% block content %}
 <div class="container">
-  <div class="quiz-container">
+  <div class="quiz-container" style="max-width:860px;margin:0 auto;">
 
-    <!-- Top Navigation & Header -->
-    <div style="margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;">
-      <a href="{{ url_for('ruang_belajar') }}" class="btn btn-secondary" style="padding:0.4rem 0.85rem;font-size:0.85rem;">
-        &larr; Kembali ke Ruang Belajar
-      </a>
-      <span class="badge badge-primary" style="font-size:0.85rem;padding:0.35rem 0.85rem;">
-        Paket Latihan Kelas {{ grade }} SMA
-      </span>
+    <!-- Top Navigation & Real-time Clock Bar -->
+    <div style="background:#FFF;border-radius:var(--radius-xl);border:1px solid var(--gray-200);box-shadow:var(--shadow-sm);padding:1.25rem 1.5rem;margin-bottom:1.5rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+        
+        <div>
+          <a href="{{ url_for('ruang_belajar') }}" class="btn btn-secondary" style="padding:0.35rem 0.8rem;font-size:0.82rem;margin-bottom:0.5rem;display:inline-block;">
+            &larr; Kembali ke Ruang Belajar
+          </a>
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <span class="badge badge-primary" style="font-size:0.85rem;padding:0.35rem 0.85rem;">
+              Bank Soal Dasar Kelas {{ grade }} SMA
+            </span>
+            {% if is_premium %}
+            <span class="badge badge-success" style="font-size:0.85rem;padding:0.35rem 0.85rem;">
+              ⭐ Premium (30 Soal / Mapel)
+            </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- REAL-TIME LAPTOP CLOCK WIDGET -->
+        <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+          
+          <div style="background:#0F172A;color:#FFF;border-radius:var(--radius-md);padding:0.55rem 1rem;min-width:190px;text-align:right;">
+            <div style="display:flex;align-items:center;justify-content:flex-end;gap:0.35rem;font-size:0.7rem;color:#94A3B8;text-transform:uppercase;font-weight:700;">
+              <span style="display:inline-block;width:7px;height:7px;border-radius:999px;background:#10B981;animation:pulse 1.5s infinite;"></span>
+              <span>Waktu Laptop</span>
+            </div>
+            <div id="liveClockDate" style="font-size:0.76rem;color:#CBD5E1;font-weight:600;">
+              Memuat tanggal...
+            </div>
+            <div id="liveClockTime" style="font-size:1.25rem;font-weight:800;letter-spacing:1px;color:#38BDF8;font-family:monospace;">
+              00:00:00
+            </div>
+          </div>
+
+          <div style="background:#F8FAFC;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:0.55rem 0.85rem;text-align:center;">
+            <div style="font-size:0.7rem;color:var(--gray-500);text-transform:uppercase;font-weight:700;">Durasi Pengerjaan</div>
+            <div id="elapsedTimer" style="font-size:1.2rem;font-weight:800;color:var(--primary);font-family:monospace;">
+              00:00
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      {% if is_premium and available_subjects %}
+      <!-- Filter Mapel untuk Akun Premium (30 Soal / Mapel) -->
+      <div style="margin-top:1rem;padding-top:0.85rem;border-top:1px solid var(--gray-100);display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+        <span style="font-size:0.82rem;font-weight:700;color:var(--gray-700);">Pilih Mata Pelajaran (30 Soal):</span>
+        <a href="{{ url_for('paket_soal', grade=grade) }}" class="btn btn-secondary {% if not current_subject %}active{% endif %}" style="padding:0.25rem 0.65rem;font-size:0.78rem;border-radius:999px;">
+          Semua Mapel
+        </a>
+        {% for s in available_subjects %}
+        <a href="{{ url_for('paket_soal', grade=grade, mapel=s) }}" class="btn btn-secondary {% if current_subject == s %}active{% endif %}" style="padding:0.25rem 0.65rem;font-size:0.78rem;border-radius:999px;">
+          {{ s }} (30 Soal)
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
     </div>
 
     <!-- Quiz Header Bar with Progress Bar -->
-    <div class="quiz-header-bar">
+    <div class="quiz-header-bar" style="background:#FFF;border-radius:var(--radius-lg);padding:1rem 1.5rem;border:1px solid var(--gray-200);margin-bottom:1.5rem;">
       <div>
         <h2 style="font-size:1.25rem;font-weight:800;color:var(--dark);">
-          Ujian Mandiri Kelas {{ grade }} SMA
+          Latihan Bank Soal Kelas {{ grade }} SMA
         </h2>
         <span style="font-size:0.85rem;color:var(--gray-500);">
-          Soal No. <strong id="currentQuestionNumber" style="color:var(--primary);font-size:1rem;">1</strong> dari {{ questions|length }}
+          Soal No. <strong id="currentQuestionNumber" style="color:var(--primary);font-size:1.05rem;">1</strong> dari {{ questions|length }}
         </span>
       </div>
 
       <div class="quiz-progress-wrap">
         <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--gray-500);margin-bottom:4px;font-weight:600;">
           <span>Progress Pengerjaan</span>
-          <span id="progressText">Langkah Belajar</span>
+          <span id="progressText">Soal 1 / {{ questions|length }}</span>
         </div>
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill" id="quizProgressBar" style="width: {{ (1 / questions|length * 100)|round }}%;"></div>
+        <div class="progress-bar-bg" style="height:8px;background:#E2E8F0;border-radius:999px;overflow:hidden;">
+          <div class="progress-bar-fill" id="quizProgressBar" style="width: {{ (1 / questions|length * 100)|round }}%;height:100%;background:var(--primary);transition:width 0.3s ease;"></div>
         </div>
       </div>
     </div>
@@ -45,52 +99,51 @@
       {% for q in questions %}
       <div class="quiz-question-card" id="qCard-{{ loop.index0 }}" style="{% if not loop.first %}display:none;{% endif %}">
         
-        <div class="question-box">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-            <span class="question-subject-badge">{{ q.subject }}</span>
-            <span style="font-size:0.82rem;color:var(--gray-400);font-weight:600;">Nomor {{ loop.index }}</span>
+        <div class="question-box" style="background:#FFF;border-radius:var(--radius-xl);border:1px solid var(--gray-200);box-shadow:var(--shadow-sm);padding:2rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;padding-bottom:0.75rem;border-bottom:1px solid var(--gray-100);">
+            <span class="badge" style="background:var(--primary-light);color:var(--primary);font-size:0.85rem;padding:0.35rem 0.8rem;font-weight:800;">
+              {{ q.subject }}
+            </span>
+            <span style="font-size:0.85rem;color:var(--gray-500);font-weight:700;">
+              Soal {{ loop.index }} dari {{ questions|length }}
+            </span>
           </div>
 
-          <div class="question-text">
+          <div class="question-text" style="font-size:1.05rem;line-height:1.7;color:var(--dark);font-weight:600;margin-bottom:1.5rem;white-space:pre-line;">
             {{ q.question_text }}
           </div>
 
           <!-- Pilihan Jawaban A, B, C, D, E -->
-          <div class="options-list">
+          <div class="options-list" style="display:flex;flex-direction:column;gap:0.75rem;">
             
-            <!-- Pilihan A -->
-            <label class="option-item" for="q{{ q.id }}_A">
-              <input type="radio" id="q{{ q.id }}_A" name="answer_{{ q.id }}" value="A" style="display:none;" required>
-              <div class="option-key">A</div>
-              <div class="option-label">{{ q.option_a }}</div>
+            <label class="option-item" for="q{{ q.id }}_A" style="display:flex;align-items:center;gap:0.85rem;padding:0.85rem 1.15rem;border:1px solid var(--gray-200);border-radius:var(--radius-md);cursor:pointer;transition:all 0.15s ease;">
+              <input type="radio" id="q{{ q.id }}_A" name="answer_{{ q.id }}" value="A" style="width:18px;height:18px;accent-color:var(--primary);">
+              <span style="font-weight:800;color:var(--primary);width:20px;">A.</span>
+              <span style="color:var(--gray-800);font-size:0.95rem;">{{ q.option_a }}</span>
             </label>
 
-            <!-- Pilihan B -->
-            <label class="option-item" for="q{{ q.id }}_B">
-              <input type="radio" id="q{{ q.id }}_B" name="answer_{{ q.id }}" value="B" style="display:none;">
-              <div class="option-key">B</div>
-              <div class="option-label">{{ q.option_b }}</div>
+            <label class="option-item" for="q{{ q.id }}_B" style="display:flex;align-items:center;gap:0.85rem;padding:0.85rem 1.15rem;border:1px solid var(--gray-200);border-radius:var(--radius-md);cursor:pointer;transition:all 0.15s ease;">
+              <input type="radio" id="q{{ q.id }}_B" name="answer_{{ q.id }}" value="B" style="width:18px;height:18px;accent-color:var(--primary);">
+              <span style="font-weight:800;color:var(--primary);width:20px;">B.</span>
+              <span style="color:var(--gray-800);font-size:0.95rem;">{{ q.option_b }}</span>
             </label>
 
-            <!-- Pilihan C -->
-            <label class="option-item" for="q{{ q.id }}_C">
-              <input type="radio" id="q{{ q.id }}_C" name="answer_{{ q.id }}" value="C" style="display:none;">
-              <div class="option-key">C</div>
-              <div class="option-label">{{ q.option_c }}</div>
+            <label class="option-item" for="q{{ q.id }}_C" style="display:flex;align-items:center;gap:0.85rem;padding:0.85rem 1.15rem;border:1px solid var(--gray-200);border-radius:var(--radius-md);cursor:pointer;transition:all 0.15s ease;">
+              <input type="radio" id="q{{ q.id }}_C" name="answer_{{ q.id }}" value="C" style="width:18px;height:18px;accent-color:var(--primary);">
+              <span style="font-weight:800;color:var(--primary);width:20px;">C.</span>
+              <span style="color:var(--gray-800);font-size:0.95rem;">{{ q.option_c }}</span>
             </label>
 
-            <!-- Pilihan D -->
-            <label class="option-item" for="q{{ q.id }}_D">
-              <input type="radio" id="q{{ q.id }}_D" name="answer_{{ q.id }}" value="D" style="display:none;">
-              <div class="option-key">D</div>
-              <div class="option-label">{{ q.option_d }}</div>
+            <label class="option-item" for="q{{ q.id }}_D" style="display:flex;align-items:center;gap:0.85rem;padding:0.85rem 1.15rem;border:1px solid var(--gray-200);border-radius:var(--radius-md);cursor:pointer;transition:all 0.15s ease;">
+              <input type="radio" id="q{{ q.id }}_D" name="answer_{{ q.id }}" value="D" style="width:18px;height:18px;accent-color:var(--primary);">
+              <span style="font-weight:800;color:var(--primary);width:20px;">D.</span>
+              <span style="color:var(--gray-800);font-size:0.95rem;">{{ q.option_d }}</span>
             </label>
 
-            <!-- Pilihan E -->
-            <label class="option-item" for="q{{ q.id }}_E">
-              <input type="radio" id="q{{ q.id }}_E" name="answer_{{ q.id }}" value="E" style="display:none;">
-              <div class="option-key">E</div>
-              <div class="option-label">{{ q.option_e }}</div>
+            <label class="option-item" for="q{{ q.id }}_E" style="display:flex;align-items:center;gap:0.85rem;padding:0.85rem 1.15rem;border:1px solid var(--gray-200);border-radius:var(--radius-md);cursor:pointer;transition:all 0.15s ease;">
+              <input type="radio" id="q{{ q.id }}_E" name="answer_{{ q.id }}" value="E" style="width:18px;height:18px;accent-color:var(--primary);">
+              <span style="font-weight:800;color:var(--primary);width:20px;">E.</span>
+              <span style="color:var(--gray-800);font-size:0.95rem;">{{ q.option_e }}</span>
             </label>
 
           </div>
@@ -100,21 +153,18 @@
       {% endfor %}
 
       <!-- Footer Tombol Navigasi Soal -->
-      <div class="quiz-nav-footer">
-        <button type="button" class="btn btn-secondary" id="prevQuestionBtn" style="visibility:hidden;">
+      <div class="quiz-nav-footer" style="display:flex;align-items:center;justify-content:space-between;margin-top:1.5rem;padding:1.25rem 0;">
+        <button type="button" class="btn btn-secondary" id="prevQuestionBtn" style="visibility:hidden;font-weight:700;">
           &larr; Soal Sebelumnya
         </button>
 
-        <div>
-          <button type="button" class="btn btn-primary" id="nextQuestionBtn">
+        <div style="display:flex;gap:0.75rem;">
+          <button type="button" class="btn btn-primary btn-lg" id="nextQuestionBtn" style="font-weight:800;">
             Soal Selanjutnya &rarr;
           </button>
           
-          <button type="submit" class="btn btn-success btn-lg" id="submitQuizBtn" style="display:none;font-weight:800;">
-            <svg style="width:20px;height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-            Selesai &amp; Lihat Hasil (Benar / Salah)
+          <button type="submit" class="btn btn-primary btn-lg" id="submitQuizBtn" style="display:none;background:var(--success);border-color:var(--success);font-weight:800;">
+            Kumpulkan Ujian &amp; Lihat Pembahasan &rarr;
           </button>
         </div>
       </div>
@@ -123,4 +173,135 @@
 
   </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<style>
+@keyframes pulse {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.15); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.option-item:hover {
+  background: #F8FAFC;
+  border-color: var(--primary) !important;
+}
+.option-item.selected {
+  background: #EEF2FF !important;
+  border-color: #4F46E5 !important;
+}
+</style>
+
+<script>
+// ========================================================
+// REAL-TIME LAPTOP CLOCK
+// ========================================================
+function updateLaptopRealtimeClock() {
+  const now = new Date();
+  const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+  const months = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+  ];
+  const dateString = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  
+  const dateEl = document.getElementById('liveClockDate');
+  const timeEl = document.getElementById('liveClockTime');
+  if (dateEl) dateEl.textContent = dateString;
+  if (timeEl) timeEl.textContent = `${hours}:${minutes}:${seconds}`;
+}
+setInterval(updateLaptopRealtimeClock, 1000);
+updateLaptopRealtimeClock();
+
+// Durasi Pengerjaan
+let secondsElapsed = 0;
+function updateElapsedTimer() {
+  secondsElapsed++;
+  const m = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+  const s = String(secondsElapsed % 60).padStart(2, '0');
+  const timerEl = document.getElementById('elapsedTimer');
+  if (timerEl) timerEl.textContent = `${m}:${s}`;
+}
+setInterval(updateElapsedTimer, 1000);
+
+// ========================================================
+// CAROUSEL NAVIGASI SOAL 1 PER 1
+// ========================================================
+document.addEventListener('DOMContentLoaded', () => {
+  const totalQuestions = {{ questions|length }};
+  let currentIndex = 0;
+
+  const prevBtn = document.getElementById('prevQuestionBtn');
+  const nextBtn = document.getElementById('nextQuestionBtn');
+  const submitBtn = document.getElementById('submitQuizBtn');
+  const numLabel = document.getElementById('currentQuestionNumber');
+  const progressText = document.getElementById('progressText');
+  const progressBar = document.getElementById('quizProgressBar');
+
+  function showQuestion(idx) {
+    for (let i = 0; i < totalQuestions; i++) {
+      const card = document.getElementById(`qCard-${i}`);
+      if (card) {
+        card.style.display = (i === idx) ? 'block' : 'none';
+      }
+    }
+
+    if (numLabel) numLabel.textContent = idx + 1;
+    if (progressText) progressText.textContent = `Soal ${idx + 1} / ${totalQuestions}`;
+    if (progressBar) progressBar.style.width = `${((idx + 1) / totalQuestions) * 100}%`;
+
+    // Tombol Prev
+    if (prevBtn) {
+      prevBtn.style.visibility = (idx === 0) ? 'hidden' : 'visible';
+    }
+
+    // Tombol Next vs Submit
+    if (idx === totalQuestions - 1) {
+      if (nextBtn) nextBtn.style.display = 'none';
+      if (submitBtn) submitBtn.style.display = 'inline-block';
+    } else {
+      if (nextBtn) nextBtn.style.display = 'inline-block';
+      if (submitBtn) submitBtn.style.display = 'none';
+    }
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      if (currentIndex < totalQuestions - 1) {
+        currentIndex++;
+        showQuestion(currentIndex);
+        window.scrollTo({ top: 120, behavior: 'smooth' });
+      }
+    });
+  }
+
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        showQuestion(currentIndex);
+        window.scrollTo({ top: 120, behavior: 'smooth' });
+      }
+    });
+  }
+
+  // Radio button styling on select
+  document.querySelectorAll('.option-item input[type="radio"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const card = e.target.closest('.quiz-question-card');
+      if (card) {
+        card.querySelectorAll('.option-item').forEach(lbl => lbl.classList.remove('selected'));
+        if (e.target.parentElement) {
+          e.target.parentElement.classList.add('selected');
+        }
+      }
+    });
+  });
+
+  showQuestion(0);
+});
+</script>
 {% endblock %}

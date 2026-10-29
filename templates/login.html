@@ -4,73 +4,321 @@
 
 {% block content %}
 <div class="container-narrow">
-  <div class="auth-wrapper">
-    <div style="text-align:center;margin-bottom:1.75rem;">
-      <div class="brand-icon" style="margin:0 auto 1rem;width:48px;height:48px;font-size:1.5rem;">G</div>
-      <h1 style="font-size:1.6rem;font-weight:800;color:var(--dark);">Masuk ke GoMobile</h1>
-      <p style="color:var(--gray-600);font-size:0.9rem;margin-top:0.35rem;">
-        Silakan masuk menggunakan ID atau Email Anda yang terdaftar di database.
+  <div class="auth-wrapper" style="max-width:580px;">
+    
+    <div style="text-align:center;margin-bottom:1.5rem;">
+      <div class="brand-icon" style="margin:0 auto 0.75rem;width:52px;height:52px;font-size:1.6rem;">G</div>
+      <h1 id="loginMainTitle" style="font-size:1.65rem;font-weight:800;color:var(--dark);">
+        Masuk ke GoMobile
+      </h1>
+      <p id="loginSubtitle" style="color:var(--gray-600);font-size:0.92rem;margin-top:0.35rem;">
+        Silakan masuk dengan akun Siswa atau Pengajar Anda.
       </p>
     </div>
 
-    <!-- Role Switcher: Siswa / Pengajar -->
-    <div class="role-switcher-tabs">
-      <button type="button" class="role-tab-btn active" data-role="siswa">
-        <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Role Switcher Tabs (Siswa / Pengajar) Bersih Tanpa Banner POV -->
+    <div class="role-switcher-tabs" style="grid-template-columns:1fr 1fr;margin-bottom:1.5rem;">
+      <button type="button" class="role-tab-btn {% if preset_role != 'pengajar' %}active{% endif %}" data-role="siswa" id="tabSiswa">
+        <svg style="width:19px;height:19px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path>
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
         </svg>
-        Siswa
+        <span>Akun Siswa</span>
       </button>
-      <button type="button" class="role-tab-btn" data-role="pengajar">
-        <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+      <button type="button" class="role-tab-btn {% if preset_role == 'pengajar' %}active{% endif %}" data-role="pengajar" id="tabPengajar">
+        <svg style="width:19px;height:19px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
         </svg>
-        Pengajar
+        <span>Akun Pengajar (Guru)</span>
       </button>
     </div>
 
-    <p id="roleHelperText" style="font-size:0.82rem;color:var(--primary);margin-bottom:1.25rem;text-align:center;font-weight:600;">
-      Mode Siswa: Akses ruang belajar, latihan soal, dan materi bimbingan.
-    </p>
-
-    <form method="POST" action="{{ url_for('login') }}">
-      <input type="hidden" name="role" id="roleInput" value="siswa">
+    <form method="POST" action="{{ url_for('login') }}" id="loginForm">
+      <input type="hidden" name="role" id="roleInput" value="{{ preset_role or 'siswa' }}">
 
       <div class="form-group">
-        <label class="form-label" for="identity">ID Pengguna atau Email Terdaftar</label>
-        <input type="text" class="form-control" id="identity" name="identity" required placeholder="Contoh: siswa_ahmad atau guru@gomobile.id">
+        <label class="form-label" for="identity" id="identityLabel">
+          {% if preset_role == 'pengajar' %}ID Pengajar / NIP / Email Guru{% else %}ID Siswa atau Alamat Email{% endif %}
+        </label>
+        <input type="text" class="form-control" id="identity" name="identity" required 
+               placeholder="{% if preset_role == 'pengajar' %}Contoh: guru_budi atau guru.siti@gomobile.id{% else %}Contoh: siswa_ahmad atau siswa_zahra{% endif %}">
       </div>
 
       <div class="form-group">
         <label class="form-label" for="password">Kata Sandi (Password)</label>
-        <input type="password" class="form-control" id="password" name="password" required placeholder="Masukkan kata sandi akun Anda">
+        <input type="password" class="form-control" id="password" name="password" required placeholder="Masukkan kata sandi akun">
       </div>
 
-      <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:1.5rem;">
-        Masuk Sekarang
+      <button type="submit" class="btn btn-primary btn-block btn-lg" id="submitBtn" style="margin-top:1.25rem;">
+        Masuk Sebagai Siswa
       </button>
     </form>
 
-    <div style="text-align:center;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--gray-200);font-size:0.9rem;color:var(--gray-600);">
+    <div style="text-align:center;margin-top:1.25rem;padding-top:1.1rem;border-top:1px solid var(--gray-200);font-size:0.88rem;color:var(--gray-600);">
       Belum memiliki akun?
       <a href="{{ url_for('register') }}" style="color:var(--primary);font-weight:700;text-decoration:none;">
-        Daftar Akun Baru Disini
+        Daftar Akun Baru (Siswa / Guru) Disini &rarr;
       </a>
     </div>
 
-    <!-- Quick Demo Accounts for Testing -->
-    <div style="margin-top:1.5rem;background:#F1F5F9;border-radius:var(--radius-md);padding:1rem;font-size:0.82rem;color:var(--gray-700);">
-      <strong style="color:var(--dark);display:block;margin-bottom:0.4rem;">Informasi Akun Database Siap Pakai:</strong>
-      <div style="display:flex;flex-direction:column;gap:0.3rem;">
-        <div>&bull; <strong>Akun Guru (Pengajar):</strong> ID: <code>guru_budi</code> | Password: <code>guru123</code></div>
-        <div>&bull; <strong>Akun Siswa:</strong> ID: <code>siswa_ahmad</code> | Password: <code>siswa123</code></div>
+    <!-- =======================================================
+         DATABASE DEMO ACCOUNTS (KATA SANDI BERBEDA SETIAP AKUN)
+         ======================================================= -->
+    <div style="margin-top:1.75rem;background:#F8FAFC;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:1.15rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+        <strong style="color:var(--dark);font-size:0.88rem;display:flex;align-items:center;gap:0.4rem;">
+          <svg style="width:16px;height:16px;color:var(--primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2 1.5 3 3.5 3h9c2 0 3.5-1 3.5-3V7c0-2-1.5-3-3.5-3h-9C5.5 4 4 5 4 7z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h4m-4-8h6"></path>
+          </svg>
+          <span id="demoHeading">Database Akun Siswa (Klik untuk Isi Otomatis)</span>
+        </strong>
+        <span class="badge badge-primary" style="font-size:0.72rem;">1-Click Login</span>
       </div>
-      <div style="margin-top:0.4rem;color:var(--gray-500);font-size:0.78rem;">
-        *Anda juga dapat mendaftar akun baru siswa maupun pengajar langsung melalui menu daftar.
+
+      <!-- LIST AKUN SISWA (PASSWORD UNIK MASING-MASING) -->
+      <div id="demoStudentsList" style="display:flex;flex-direction:column;gap:0.6rem;">
+        
+        <!-- Ahmad -->
+        <div style="background:#FFF;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:0.75rem 0.85rem;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;" class="demo-card-item">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <div style="width:34px;height:34px;border-radius:999px;background:#2563EB;color:#FFF;font-weight:800;font-size:0.82rem;display:flex;align-items:center;justify-content:center;">
+              A
+            </div>
+            <div>
+              <div style="font-weight:700;font-size:0.85rem;color:var(--dark);">
+                Ahmad Rizky Pratama
+                <span class="badge badge-success" style="font-size:0.68rem;padding:0.15rem 0.4rem;margin-left:4px;">Premium Verified</span>
+              </div>
+              <div style="font-size:0.75rem;color:var(--gray-500);margin-top:2px;">
+                User: <code>siswa_ahmad</code> &bull; Sandi: <code style="color:#059669;font-weight:700;">ahmad_pass123</code>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary" style="font-size:0.78rem;padding:0.35rem 0.7rem;white-space:nowrap;font-weight:700;"
+                  onclick="selectDemoAccount('siswa_ahmad', 'ahmad_pass123', 'siswa')">
+            Pilih Siswa &rarr;
+          </button>
+        </div>
+
+        <!-- Zahra -->
+        <div style="background:#FFF;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:0.75rem 0.85rem;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;" class="demo-card-item">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <div style="width:34px;height:34px;border-radius:999px;background:#EC4899;color:#FFF;font-weight:800;font-size:0.82rem;display:flex;align-items:center;justify-content:center;">
+              Z
+            </div>
+            <div>
+              <div style="font-weight:700;font-size:0.85rem;color:var(--dark);">
+                Zahra Putri Ramadhani
+                <span class="badge" style="background:#DBEAFE;color:#1E40AF;font-size:0.68rem;padding:0.15rem 0.4rem;margin-left:4px;">Kelas 10</span>
+              </div>
+              <div style="font-size:0.75rem;color:var(--gray-500);margin-top:2px;">
+                User: <code>siswa_zahra</code> &bull; Sandi: <code style="color:#059669;font-weight:700;">zahra_pass456</code>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary" style="font-size:0.78rem;padding:0.35rem 0.7rem;white-space:nowrap;font-weight:700;"
+                  onclick="selectDemoAccount('siswa_zahra', 'zahra_pass456', 'siswa')">
+            Pilih Siswa &rarr;
+          </button>
+        </div>
+
+        <!-- Dimas -->
+        <div style="background:#FFF;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:0.75rem 0.85rem;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;" class="demo-card-item">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <div style="width:34px;height:34px;border-radius:999px;background:#10B981;color:#FFF;font-weight:800;font-size:0.82rem;display:flex;align-items:center;justify-content:center;">
+              D
+            </div>
+            <div>
+              <div style="font-weight:700;font-size:0.85rem;color:var(--dark);">
+                Dimas Aditya Nugraha
+                <span class="badge" style="background:#DBEAFE;color:#1E40AF;font-size:0.68rem;padding:0.15rem 0.4rem;margin-left:4px;">Kelas 11</span>
+              </div>
+              <div style="font-size:0.75rem;color:var(--gray-500);margin-top:2px;">
+                User: <code>siswa_dimas</code> &bull; Sandi: <code style="color:#059669;font-weight:700;">dimas_pass789</code>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary" style="font-size:0.78rem;padding:0.35rem 0.7rem;white-space:nowrap;font-weight:700;"
+                  onclick="selectDemoAccount('siswa_dimas', 'dimas_pass789', 'siswa')">
+            Pilih Siswa &rarr;
+          </button>
+        </div>
+
+        <!-- Nayla -->
+        <div style="background:#FFF;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:0.75rem 0.85rem;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;" class="demo-card-item">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <div style="width:34px;height:34px;border-radius:999px;background:#8B5CF6;color:#FFF;font-weight:800;font-size:0.82rem;display:flex;align-items:center;justify-content:center;">
+              N
+            </div>
+            <div>
+              <div style="font-weight:700;font-size:0.85rem;color:var(--dark);">
+                Nayla Salsabila
+                <span class="badge" style="background:#DBEAFE;color:#1E40AF;font-size:0.68rem;padding:0.15rem 0.4rem;margin-left:4px;">Kelas 12</span>
+              </div>
+              <div style="font-size:0.75rem;color:var(--gray-500);margin-top:2px;">
+                User: <code>siswa_nayla</code> &bull; Sandi: <code style="color:#059669;font-weight:700;">nayla_pass321</code>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary" style="font-size:0.78rem;padding:0.35rem 0.7rem;white-space:nowrap;font-weight:700;"
+                  onclick="selectDemoAccount('siswa_nayla', 'nayla_pass321', 'siswa')">
+            Pilih Siswa &rarr;
+          </button>
+        </div>
+
+      </div>
+
+      <!-- LIST AKUN PENGAJAR (PASSWORD UNIK MASING-MASING) -->
+      <div id="demoTeachersList" style="display:none;flex-direction:column;gap:0.6rem;">
+        
+        <!-- Budi -->
+        <div style="background:#FFF;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:0.75rem 0.85rem;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;" class="demo-card-item">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <div style="width:34px;height:34px;border-radius:999px;background:#4F46E5;color:#FFF;font-weight:800;font-size:0.82rem;display:flex;align-items:center;justify-content:center;">
+              B
+            </div>
+            <div>
+              <div style="font-weight:700;font-size:0.85rem;color:var(--dark);">
+                Budi Prasetyo, S.Pd., M.Si.
+                <span class="badge" style="background:#F3E8FF;color:#6B21A8;font-size:0.68rem;padding:0.15rem 0.4rem;margin-left:4px;">Guru Matematika</span>
+              </div>
+              <div style="font-size:0.75rem;color:var(--gray-500);margin-top:2px;">
+                User: <code>guru_budi</code> &bull; Sandi: <code style="color:#7C3AED;font-weight:700;">budi_mat123</code>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary" style="font-size:0.78rem;padding:0.35rem 0.7rem;white-space:nowrap;font-weight:700;color:#7C3AED;"
+                  onclick="selectDemoAccount('guru_budi', 'budi_mat123', 'pengajar')">
+            Pilih Guru &rarr;
+          </button>
+        </div>
+
+        <!-- Siti -->
+        <div style="background:#FFF;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:0.75rem 0.85rem;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;" class="demo-card-item">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <div style="width:34px;height:34px;border-radius:999px;background:#0D9488;color:#FFF;font-weight:800;font-size:0.82rem;display:flex;align-items:center;justify-content:center;">
+              S
+            </div>
+            <div>
+              <div style="font-weight:700;font-size:0.85rem;color:var(--dark);">
+                Dr. Siti Rahmawati, M.Pd.
+                <span class="badge" style="background:#F3E8FF;color:#6B21A8;font-size:0.68rem;padding:0.15rem 0.4rem;margin-left:4px;">Guru Fisika</span>
+              </div>
+              <div style="font-size:0.75rem;color:var(--gray-500);margin-top:2px;">
+                User: <code>guru_siti</code> &bull; Sandi: <code style="color:#7C3AED;font-weight:700;">siti_fis456</code>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary" style="font-size:0.78rem;padding:0.35rem 0.7rem;white-space:nowrap;font-weight:700;color:#7C3AED;"
+                  onclick="selectDemoAccount('guru_siti', 'siti_fis456', 'pengajar')">
+            Pilih Guru &rarr;
+          </button>
+        </div>
+
+        <!-- Andi -->
+        <div style="background:#FFF;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:0.75rem 0.85rem;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;" class="demo-card-item">
+          <div style="display:flex;align-items:center;gap:0.6rem;">
+            <div style="width:34px;height:34px;border-radius:999px;background:#D97706;color:#FFF;font-weight:800;font-size:0.82rem;display:flex;align-items:center;justify-content:center;">
+              A
+            </div>
+            <div>
+              <div style="font-weight:700;font-size:0.85rem;color:var(--dark);">
+                Andi Wijaya, S.Pd., M.Ed.
+                <span class="badge" style="background:#F3E8FF;color:#6B21A8;font-size:0.68rem;padding:0.15rem 0.4rem;margin-left:4px;">Mentor TPS SNBT</span>
+              </div>
+              <div style="font-size:0.75rem;color:var(--gray-500);margin-top:2px;">
+                User: <code>guru_andi</code> &bull; Sandi: <code style="color:#7C3AED;font-weight:700;">andi_tps789</code>
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary" style="font-size:0.78rem;padding:0.35rem 0.7rem;white-space:nowrap;font-weight:700;color:#7C3AED;"
+                  onclick="selectDemoAccount('guru_andi', 'andi_tps789', 'pengajar')">
+            Pilih Guru &rarr;
+          </button>
+        </div>
+
+      </div>
+
+      <div style="margin-top:0.75rem;font-size:0.75rem;color:var(--gray-500);text-align:center;">
+        *Setiap akun pengajar dan siswa memiliki kata sandi unik masing-masing di database.
       </div>
     </div>
 
   </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function selectDemoAccount(username, password, role) {
+  document.getElementById('identity').value = username;
+  document.getElementById('password').value = password;
+  switchRole(role);
+  
+  // Flash feedback
+  const idInput = document.getElementById('identity');
+  idInput.style.borderColor = '#10B981';
+  idInput.style.backgroundColor = '#ECFDF5';
+  setTimeout(() => {
+    idInput.style.borderColor = '';
+    idInput.style.backgroundColor = '';
+  }, 1200);
+}
+
+function switchRole(role) {
+  const isTeacher = role === 'pengajar';
+  document.getElementById('roleInput').value = role;
+
+  const tabSiswa = document.getElementById('tabSiswa');
+  const tabPengajar = document.getElementById('tabPengajar');
+  const identityLabel = document.getElementById('identityLabel');
+  const identityInput = document.getElementById('identity');
+  const submitBtn = document.getElementById('submitBtn');
+  const demoHeading = document.getElementById('demoHeading');
+  const demoStudentsList = document.getElementById('demoStudentsList');
+  const demoTeachersList = document.getElementById('demoTeachersList');
+
+  if (isTeacher) {
+    tabSiswa.classList.remove('active');
+    tabPengajar.classList.add('active');
+
+    identityLabel.textContent = 'ID Pengajar / NIP / Email Guru';
+    identityInput.placeholder = 'Contoh: guru_budi atau guru.siti@gomobile.id';
+    submitBtn.textContent = 'Masuk Sebagai Pengajar';
+    submitBtn.style.background = '#7C3AED';
+    submitBtn.style.borderColor = '#7C3AED';
+
+    demoHeading.textContent = 'Database Akun Guru (Klik untuk Isi Otomatis)';
+    demoStudentsList.style.display = 'none';
+    demoTeachersList.style.display = 'flex';
+  } else {
+    tabPengajar.classList.remove('active');
+    tabSiswa.classList.add('active');
+
+    identityLabel.textContent = 'ID Siswa atau Alamat Email';
+    identityInput.placeholder = 'Contoh: siswa_ahmad atau siswa_zahra';
+    submitBtn.textContent = 'Masuk Sebagai Siswa';
+    submitBtn.style.background = 'var(--primary)';
+    submitBtn.style.borderColor = 'var(--primary)';
+
+    demoHeading.textContent = 'Database Akun Siswa (Klik untuk Isi Otomatis)';
+    demoStudentsList.style.display = 'flex';
+    demoTeachersList.style.display = 'none';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const tabSiswa = document.getElementById('tabSiswa');
+  const tabPengajar = document.getElementById('tabPengajar');
+
+  if (tabSiswa) tabSiswa.addEventListener('click', () => switchRole('siswa'));
+  if (tabPengajar) tabPengajar.addEventListener('click', () => switchRole('pengajar'));
+
+  // Initialize with preset role if any
+  const currentRole = document.getElementById('roleInput').value || 'siswa';
+  switchRole(currentRole);
+});
+</script>
 {% endblock %}

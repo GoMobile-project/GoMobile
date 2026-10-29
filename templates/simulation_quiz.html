@@ -1,0 +1,313 @@
+{% extends "base.html" %}
+
+{% block title %}Simulasi 25 Soal CAT: {{ subject.title }} - GoMobile{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- REAL-TIME CLOCK & HEADER SIMULASI -->
+  <div style="background:#FFF;border-radius:var(--radius-xl);border:1px solid var(--gray-200);box-shadow:var(--shadow-md);padding:1.5rem 1.75rem;margin-bottom:2rem;">
+    
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+      
+      <!-- Kiri: Judul Simulasi & Mapel -->
+      <div>
+        <div style="display:inline-flex;align-items:center;gap:0.4rem;font-size:0.8rem;font-weight:700;color:{{ subject.color }};background:{{ subject.color }}15;padding:0.25rem 0.75rem;border-radius:999px;margin-bottom:0.4rem;">
+          <span>{{ subject.icon }}</span>
+          <span>Simulasi 25 Soal HOTS &bull; {{ subject.badge }}</span>
+        </div>
+        <h1 style="font-size:clamp(1.35rem, 3vw, 1.85rem);font-weight:800;color:var(--dark);margin:0;">
+          {{ subject.title }}
+        </h1>
+      </div>
+
+      <!-- Kanan: WAKTU REAL-TIME LAPTOP (HARI, TANGGAL, JAM & DETIK SINKRON) -->
+      <div style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;">
+        
+        <!-- Live Laptop Clock Widget -->
+        <div style="background:#0F172A;color:#FFF;border-radius:var(--radius-lg);padding:0.75rem 1.25rem;box-shadow:inset 0 2px 4px rgba(0,0,0,0.3);min-width:210px;text-align:right;">
+          <div style="display:flex;align-items:center;justify-content:flex-end;gap:0.4rem;font-size:0.75rem;color:#94A3B8;text-transform:uppercase;font-weight:700;margin-bottom:2px;">
+            <span style="display:inline-block;width:8px;height:8px;border-radius:999px;background:#10B981;animation:pulse 1.5s infinite;"></span>
+            <span>Waktu Laptop Anda</span>
+          </div>
+          <div id="liveClockDate" style="font-size:0.82rem;color:#CBD5E1;font-weight:600;">
+            Memuat tanggal...
+          </div>
+          <div id="liveClockTime" style="font-size:1.45rem;font-weight:800;letter-spacing:1px;color:#38BDF8;font-family:monospace;">
+            00:00:00
+          </div>
+        </div>
+
+        <!-- Durasi Pengerjaan -->
+        <div style="background:#F8FAFC;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:0.75rem 1.1rem;text-align:center;">
+          <div style="font-size:0.74rem;color:var(--gray-500);text-transform:uppercase;font-weight:700;">Durasi Pengerjaan</div>
+          <div id="elapsedTimer" style="font-size:1.35rem;font-weight:800;color:var(--primary);font-family:monospace;">
+            00:00
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Progress Tracker -->
+    <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;font-size:0.86rem;color:var(--gray-600);">
+      <div>
+        Total Soal: <strong style="color:var(--dark);">{{ questions|length }} Butir</strong> | Subtes: <strong>{{ subject.title }}</strong>
+      </div>
+      <div id="answeredCounter" style="font-weight:700;color:var(--primary);">
+        0 dari {{ questions|length }} Soal Terjawab
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FORM PENGERJAAN 25 SOAL -->
+  <form method="POST" action="{{ url_for('submit_simulation', slug=subject.slug) }}" id="quizForm">
+    
+    <div class="responsive-2col" style="grid-template-columns:1fr 280px;align-items:start;">
+      
+      <!-- KOLOM SOAL-SOAL -->
+      <div>
+        {% for q in questions %}
+        <div class="question-card" id="q_card_{{ q.id }}" style="background:#FFF;border-radius:var(--radius-lg);border:1px solid var(--gray-200);box-shadow:var(--shadow-sm);padding:1.5rem;margin-bottom:1.5rem;">
+          
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:1px solid var(--gray-100);">
+            <div style="display:flex;align-items:center;gap:0.6rem;">
+              <span class="badge" style="background:var(--primary-light);color:var(--primary);font-size:0.85rem;padding:0.3rem 0.75rem;font-weight:800;">
+                Nomor {{ loop.index }}
+              </span>
+              <span style="font-size:0.82rem;color:var(--gray-500);font-weight:600;">
+                Bobot Standar CAT IRT
+              </span>
+            </div>
+            <span class="badge" id="badge_status_{{ q.id }}" style="background:#F1F5F9;color:var(--gray-500);font-size:0.75rem;">
+              Belum Dijawab
+            </span>
+          </div>
+
+          <div style="font-size:1.02rem;color:var(--dark);line-height:1.65;font-weight:600;margin-bottom:1.25rem;white-space:pre-line;">
+            {{ q.question_text }}
+          </div>
+
+          <!-- Opsi Jawaban A, B, C, D, E -->
+          <div style="display:flex;flex-direction:column;gap:0.6rem;">
+            
+            <label class="option-label" style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;border:1px solid var(--gray-200);border-radius:var(--radius-md);cursor:pointer;transition:all 0.15s ease;"
+                   onclick="markAnswered({{ q.id }}, 'A')">
+              <input type="radio" name="answer_{{ q.id }}" value="A" style="width:18px;height:18px;accent-color:var(--primary);">
+              <span style="font-weight:700;color:var(--primary);width:20px;">A.</span>
+              <span style="color:var(--gray-700);font-size:0.92rem;">{{ q.option_a }}</span>
+            </label>
+
+            <label class="option-label" style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;border:1px solid var(--gray-200);border-radius:var(--radius-md);cursor:pointer;transition:all 0.15s ease;"
+                   onclick="markAnswered({{ q.id }}, 'B')">
+              <input type="radio" name="answer_{{ q.id }}" value="B" style="width:18px;height:18px;accent-color:var(--primary);">
+              <span style="font-weight:700;color:var(--primary);width:20px;">B.</span>
+              <span style="color:var(--gray-700);font-size:0.92rem;">{{ q.option_b }}</span>
+            </label>
+
+            <label class="option-label" style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;border:1px solid var(--gray-200);border-radius:var(--radius-md);cursor:pointer;transition:all 0.15s ease;"
+                   onclick="markAnswered({{ q.id }}, 'C')">
+              <input type="radio" name="answer_{{ q.id }}" value="C" style="width:18px;height:18px;accent-color:var(--primary);">
+              <span style="font-weight:700;color:var(--primary);width:20px;">C.</span>
+              <span style="color:var(--gray-700);font-size:0.92rem;">{{ q.option_c }}</span>
+            </label>
+
+            <label class="option-label" style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;border:1px solid var(--gray-200);border-radius:var(--radius-md);cursor:pointer;transition:all 0.15s ease;"
+                   onclick="markAnswered({{ q.id }}, 'D')">
+              <input type="radio" name="answer_{{ q.id }}" value="D" style="width:18px;height:18px;accent-color:var(--primary);">
+              <span style="font-weight:700;color:var(--primary);width:20px;">D.</span>
+              <span style="color:var(--gray-700);font-size:0.92rem;">{{ q.option_d }}</span>
+            </label>
+
+            <label class="option-label" style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;border:1px solid var(--gray-200);border-radius:var(--radius-md);cursor:pointer;transition:all 0.15s ease;"
+                   onclick="markAnswered({{ q.id }}, 'E')">
+              <input type="radio" name="answer_{{ q.id }}" value="E" style="width:18px;height:18px;accent-color:var(--primary);">
+              <span style="font-weight:700;color:var(--primary);width:20px;">E.</span>
+              <span style="color:var(--gray-700);font-size:0.92rem;">{{ q.option_e }}</span>
+            </label>
+
+          </div>
+
+        </div>
+        {% endfor %}
+
+        <!-- Tombol Selesai Ujian -->
+        <div style="background:#FFF;border-radius:var(--radius-lg);border:1px solid var(--gray-200);padding:1.5rem;text-align:center;margin-bottom:3rem;">
+          <h3 style="font-size:1.2rem;font-weight:800;color:var(--dark);margin-bottom:0.5rem;">
+            Sudah Selesai Memeriksa Semua Jawaban?
+          </h3>
+          <p style="font-size:0.88rem;color:var(--gray-600);margin-bottom:1.25rem;">
+            Pastikan seluruh 25 soal telah terjawab. Nilai skor dan pembahasan lengkap akan langsung ditampilkan setelah submit.
+          </p>
+          <button type="submit" class="btn btn-primary btn-lg" style="background:var(--success);border-color:var(--success);padding:0.85rem 2.5rem;font-weight:800;font-size:1.05rem;"
+                  onclick="return confirm('Kirim seluruh jawaban simulasi sekarang?');">
+            Kumpulkan Jawaban Simulasi &rarr;
+          </button>
+        </div>
+
+      </div>
+
+      <!-- SIDEBAR NAVIGASI NOMOR SOAL (STICKY DI LAPTOP) -->
+      <div style="position:sticky;top:90px;">
+        <div style="background:#FFF;border-radius:var(--radius-lg);border:1px solid var(--gray-200);padding:1.25rem;box-shadow:var(--shadow-sm);margin-bottom:1rem;">
+          <h4 style="font-size:0.95rem;font-weight:800;color:var(--dark);margin-bottom:0.75rem;display:flex;align-items:center;justify-content:space-between;">
+            <span>Peta Nomor Soal</span>
+            <span style="font-size:0.75rem;color:var(--gray-500);font-weight:600;">1 - 25</span>
+          </h4>
+
+          <div style="display:grid;grid-template-columns:repeat(5, 1fr);gap:0.4rem;margin-bottom:1.25rem;">
+            {% for q in questions %}
+            <a href="#q_card_{{ q.id }}" id="nav_btn_{{ q.id }}" class="question-nav-btn"
+               style="display:flex;align-items:center;justify-content:center;height:36px;border-radius:var(--radius-sm);background:#F1F5F9;color:var(--gray-700);font-weight:700;font-size:0.82rem;text-decoration:none;border:1px solid var(--gray-200);">
+              {{ loop.index }}
+            </a>
+            {% endfor %}
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:0.4rem;font-size:0.75rem;color:var(--gray-500);margin-bottom:1rem;border-top:1px solid var(--gray-100);padding-top:0.75rem;">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <span style="width:12px;height:12px;border-radius:3px;background:#10B981;"></span>
+              <span>Sudah Terjawab</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <span style="width:12px;height:12px;border-radius:3px;background:#F1F5F9;border:1px solid var(--gray-300);"></span>
+              <span>Belum Terjawab</span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" style="background:var(--success);border-color:var(--success);font-weight:800;"
+                  onclick="return confirm('Kirim seluruh jawaban simulasi sekarang?');">
+            Kirim Jawaban
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </form>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<style>
+@keyframes pulse {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.15); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.option-label:hover {
+  background: #F8FAFC;
+  border-color: var(--primary) !important;
+}
+.option-label.selected {
+  background: #EEF2FF !important;
+  border-color: #6366F1 !important;
+}
+</style>
+
+<script>
+// ========================================================
+// REAL-TIME CLOCK SYNCED WITH USER'S LAPTOP
+// Menampilkan Hari, Tanggal, Jam, Menit, dan Detik persis sama dengan laptop
+// ========================================================
+function updateLaptopRealtimeClock() {
+  const now = new Date();
+  
+  // Format Hari & Tanggal Bahasa Indonesia
+  const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+  const months = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+  ];
+  
+  const dayName = days[now.getDay()];
+  const dateNum = now.getDate();
+  const monthName = months[now.getMonth()];
+  const year = now.getFullYear();
+  
+  const dateString = `${dayName}, ${dateNum} ${monthName} ${year}`;
+  
+  // Format Jam, Menit, Detik (2 digit)
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  
+  const timeString = `${hours}:${minutes}:${seconds}`;
+  
+  const dateEl = document.getElementById('liveClockDate');
+  const timeEl = document.getElementById('liveClockTime');
+  
+  if (dateEl) dateEl.textContent = dateString;
+  if (timeEl) timeEl.textContent = timeString;
+}
+
+// Update jam setiap 1000ms (1 detik)
+setInterval(updateLaptopRealtimeClock, 1000);
+updateLaptopRealtimeClock();
+
+// ========================================================
+// DURASI PENGERJAAN TIMER
+// ========================================================
+let secondsElapsed = 0;
+function updateElapsedTimer() {
+  secondsElapsed++;
+  const m = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+  const s = String(secondsElapsed % 60).padStart(2, '0');
+  const timerEl = document.getElementById('elapsedTimer');
+  if (timerEl) timerEl.textContent = `${m}:${s}`;
+}
+setInterval(updateElapsedTimer, 1000);
+
+// ========================================================
+// MARK QUESTION ANSWERED & UPDATE MAP
+// ========================================================
+const answeredQuestions = new Set();
+const totalQuestions = {{ questions|length }};
+
+function markAnswered(qid, choice) {
+  answeredQuestions.add(qid);
+  
+  // Update badge status
+  const badge = document.getElementById(`badge_status_${qid}`);
+  if (badge) {
+    badge.textContent = `Pilihan: ${choice}`;
+    badge.style.background = '#ECFDF5';
+    badge.style.color = '#059669';
+    badge.style.fontWeight = '700';
+  }
+
+  // Update nav button
+  const navBtn = document.getElementById(`nav_btn_${qid}`);
+  if (navBtn) {
+    navBtn.style.background = '#10B981';
+    navBtn.style.color = '#FFF';
+    navBtn.style.borderColor = '#059669';
+  }
+
+  // Update answered counter
+  const counter = document.getElementById('answeredCounter');
+  if (counter) {
+    counter.textContent = `${answeredQuestions.size} dari ${totalQuestions} Soal Terjawab`;
+    if (answeredQuestions.size === totalQuestions) {
+      counter.style.color = '#059669';
+      counter.innerHTML = `<strong>Lengkap!</strong> ${totalQuestions} dari ${totalQuestions} Soal Terjawab`;
+    }
+  }
+
+  // Highlight option visual
+  const card = document.getElementById(`q_card_${qid}`);
+  if (card) {
+    card.querySelectorAll('.option-label').forEach(label => {
+      label.classList.remove('selected');
+    });
+    const selectedInput = card.querySelector(`input[value="${choice}"]`);
+    if (selectedInput && selectedInput.parentElement) {
+      selectedInput.parentElement.classList.add('selected');
+    }
+  }
+}
+</script>
+{% endblock %}

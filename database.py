@@ -58,9 +58,27 @@ def _init_db_tables_and_seeds(conn):
         role TEXT NOT NULL DEFAULT 'siswa', -- 'siswa' or 'pengajar'
         phone TEXT,
         school TEXT,
+        grade INTEGER, -- 10, 11, or 12 for siswa
+        specialty TEXT, -- Mapel spesialisasi pengajar
+        target_campus TEXT, -- Target kampus siswa
+        nip TEXT, -- NIP / Kode Pendidik
+        avatar_color TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     ''')
+
+    # Ensure additional columns exist on users table for backwards-compatibility
+    for col, col_type in [
+        ('grade', 'INTEGER'),
+        ('specialty', 'TEXT'),
+        ('target_campus', 'TEXT'),
+        ('nip', 'TEXT'),
+        ('avatar_color', 'TEXT')
+    ]:
+        try:
+            cursor.execute(f"ALTER TABLE users ADD COLUMN {col} {col_type}")
+        except sqlite3.OperationalError:
+            pass
 
     # Create questions table (Ruang Belajar)
     cursor.execute('''
@@ -160,38 +178,217 @@ def _init_db_tables_and_seeds(conn):
     seed_questions(conn)
     seed_articles(conn)
     seed_packages(conn)
+    seed_quiz_results(conn)
+    seed_demo_orders(conn)
     conn.commit()
+
+def is_premium_user(conn, user_id=None, email=None):
+    """Cek apakah user memiliki order dengan payment_status 'paid' atau 'verified'."""
+    if not user_id and not email:
+        return False
+    cursor = conn.cursor()
+    cursor.execute('''
+    SELECT id FROM orders 
+    WHERE (user_id = ? OR buyer_email = ?) 
+      AND payment_status IN ('paid', 'verified')
+    LIMIT 1
+    ''', (user_id, email))
+    return cursor.fetchone() is not None
 
 def seed_users(conn):
     cursor = conn.cursor()
-    cursor.execute("SELECT COUNT(*) FROM users")
+    # Pre-seed rich demo accounts representing different POVs:
+    # 3 Pengajar (Guru Matematika, Guru Fisika, Guru TPS UTBK) dengan password unik
+    # 4 Siswa (Kelas 10, Kelas 11, Kelas 12 dari berbagai SMA favorit & target kampus) dengan password unik
+    users_data = [
+        # --- PENGAJAR (GURU) ---
+        (
+            'guru_budi',
+            'guru.budi@gomobile.id',
+            generate_password_hash('budi_mat123'),
+            'Budi Prasetyo, S.Pd., M.Si.',
+            'pengajar',
+            '081234567890',
+            'SMA Negeri 1 Edukasi GoMobile',
+            None,
+            'Matematika & Aljabar Kalkulus',
+            None,
+            '19820514 200801 1 009',
+            '#4F46E5'
+        ),
+        (
+            'guru_siti',
+            'guru.siti@gomobile.id',
+            generate_password_hash('siti_fis456'),
+            'Dr. Siti Rahmawati, M.Pd.',
+            'pengajar',
+            '081298765432',
+            'Lembaga Bimbingan Sains Prima',
+            None,
+            'Fisika & Mekanika Modern',
+            None,
+            '19871120 201202 2 004',
+            '#0D9488'
+        ),
+        (
+            'guru_andi',
+            'guru.andi@gomobile.id',
+            generate_password_hash('andi_tps789'),
+            'Andi Wijaya, S.Pd., M.Ed.',
+            'pengajar',
+            '081377889900',
+            'Master Mentor SNBT Nasional',
+            None,
+            'TPS Skolastik & Literasi UTBK',
+            None,
+            '19910408 201603 1 012',
+            '#D97706'
+        ),
+
+        # --- SISWA (STUDENTS) ---
+        (
+            'siswa_ahmad',
+            'siswa.ahmad@gomobile.id',
+            generate_password_hash('ahmad_pass123'),
+            'Ahmad Rizky Pratama',
+            'siswa',
+            '089876543210',
+            'SMA Nusantara Cendekia',
+            12,
+            None,
+            'Teknik Mesin - UGM',
+            None,
+            '#2563EB'
+        ),
+        (
+            'siswa_zahra',
+            'siswa.zahra@gomobile.id',
+            generate_password_hash('zahra_pass456'),
+            'Zahra Putri Ramadhani',
+            'siswa',
+            '087711223344',
+            'SMA Negeri 8 Jakarta',
+            10,
+            None,
+            'Pendidikan Dokter - FK UI',
+            None,
+            '#EC4899'
+        ),
+        (
+            'siswa_dimas',
+            'siswa.dimas@gomobile.id',
+            generate_password_hash('dimas_pass789'),
+            'Dimas Aditya Nugraha',
+            'siswa',
+            '085699887766',
+            'SMA Negeri 3 Bandung',
+            11,
+            None,
+            'STEI (Teknik Informatika) - ITB',
+            None,
+            '#10B981'
+        ),
+        (
+            'siswa_nayla',
+            'siswa.nayla@gomobile.id',
+            generate_password_hash('nayla_pass321'),
+            'Nayla Salsabila',
+            'siswa',
+            '081955667788',
+            'SMA Negeri 1 Surabaya',
+            12,
+            None,
+            'Aktuaria & Sains Data - ITS',
+            None,
+            '#8B5CF6'
+        ),
+    ]
+
+    for u in users_data:
+        cursor.execute("SELECT id FROM users WHERE username = ?", (u[0],))
+        row = cursor.fetchone()
+        if row is None:
+            cursor.execute('''
+            INSERT INTO users (
+                username, email, password_hash, full_name, role, phone, school,
+                grade, specialty, target_campus, nip, avatar_color
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', u)
+        else:
+            # Update password hash dan profil
+            cursor.execute('''
+            UPDATE users SET 
+                password_hash = ?,
+                grade = COALESCE(grade, ?),
+                specialty = COALESCE(specialty, ?),
+                target_campus = COALESCE(target_campus, ?),
+                nip = COALESCE(nip, ?),
+                avatar_color = COALESCE(avatar_color, ?)
+            WHERE id = ?
+            ''', (u[2], u[7], u[8], u[9], u[10], u[11], row['id']))
+    conn.commit()
+
+def seed_demo_orders(conn):
+    """Seed akun siswa_ahmad sebagai akun premium terverifikasi."""
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, email, full_name, school, phone FROM users WHERE username = 'siswa_ahmad'")
+    ahmad = cursor.fetchone()
+    if ahmad:
+        cursor.execute("SELECT id FROM orders WHERE user_id = ? AND payment_status IN ('paid', 'verified')", (ahmad['id'],))
+        if not cursor.fetchone():
+            cursor.execute("SELECT id, title, price FROM packages WHERE slug = 'paket-master-utbk-tka'")
+            pkg = cursor.fetchone()
+            if pkg:
+                cursor.execute('''
+                INSERT INTO orders (
+                    order_code, user_id, buyer_name, buyer_email, buyer_phone, buyer_school,
+                    package_id, package_title, amount, payment_method, payment_status, proof_note, paid_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'QRIS', 'paid', 'Verifikasi Otomatis Akun Demo Premium', CURRENT_TIMESTAMP)
+                ''', (
+                    'GM-AHMAD-PREMIUM', ahmad['id'], ahmad['full_name'], ahmad['email'], ahmad['phone'],
+                    ahmad['school'], pkg['id'], pkg['title'], pkg['price']
+                ))
+                conn.commit()
+
+def seed_quiz_results(conn):
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM quiz_results")
     if cursor.fetchone()[0] == 0:
-        # Pre-seed 1 Teacher and 1 Student for immediate testing and demonstration
-        users_data = [
-            (
-                'guru_budi',
-                'guru@gomobile.id',
-                generate_password_hash('guru123'),
-                'Budi Prasetyo, S.Pd., M.Si.',
-                'pengajar',
-                '081234567890',
-                'SMA Negeri 1 Edukasi GoMobile'
-            ),
-            (
-                'siswa_ahmad',
-                'siswa@gomobile.id',
-                generate_password_hash('siswa123'),
-                'Ahmad Rizky Pratama',
-                'siswa',
-                '089876543210',
-                'SMA Nusantara Cendekia'
-            )
-        ]
-        cursor.executemany('''
-        INSERT INTO users (username, email, password_hash, full_name, role, phone, school)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', users_data)
-        conn.commit()
+        cursor.execute("SELECT id, username FROM users")
+        user_map = {row['username']: row['id'] for row in cursor.fetchall()}
+
+        sample_results = []
+        if 'siswa_ahmad' in user_map:
+            sample_results.append((
+                user_map['siswa_ahmad'], 12, 5, 4, 1, 80.0,
+                json.dumps({'package': 'Latihan Kalkulus & UTBK Kelas 12', 'status': 'completed'})
+            ))
+            sample_results.append((
+                user_map['siswa_ahmad'], 11, 5, 5, 0, 100.0,
+                json.dumps({'package': 'Review Deret & Termodinamika', 'status': 'completed'})
+            ))
+        if 'siswa_dimas' in user_map:
+            sample_results.append((
+                user_map['siswa_dimas'], 11, 5, 5, 0, 100.0,
+                json.dumps({'package': 'Latihan Barisan & Logika Kelas 11', 'status': 'completed'})
+            ))
+        if 'siswa_zahra' in user_map:
+            sample_results.append((
+                user_map['siswa_zahra'], 10, 5, 4, 1, 80.0,
+                json.dumps({'package': 'Latihan Nilai Mutlak & GLBB Kelas 10', 'status': 'completed'})
+            ))
+        if 'siswa_nayla' in user_map:
+            sample_results.append((
+                user_map['siswa_nayla'], 12, 5, 5, 0, 100.0,
+                json.dumps({'package': 'Simulasi Soal HOTS Kimia & Sel Volta', 'status': 'completed'})
+            ))
+
+        if sample_results:
+            cursor.executemany('''
+            INSERT INTO quiz_results (user_id, grade, total_questions, correct_answers, wrong_answers, score, answers_json)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', sample_results)
+            conn.commit()
 
 def seed_questions(conn):
     cursor = conn.cursor()
@@ -596,4 +793,4 @@ def seed_packages(conn):
 
 if __name__ == '__main__':
     init_db()
-    print("GoMobile SQLite Database initialized and seeded successfully at:", DB_PATH)
+    print("GoMobile SQLite Database initialized and seeded successfully at:", get_db_path())

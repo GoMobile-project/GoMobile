@@ -7,7 +7,9 @@ from flask import (
     Flask, render_template, request, redirect, url_for, flash, session, g
 )
 from werkzeug.security import generate_password_hash, check_password_hash
-from database import get_db, init_db
+from database import get_db, init_db, is_premium_user
+from subjects_data import SUBJECTS
+from premium_bank_soal import PREMIUM_QUESTIONS
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'gomobile_super_secure_secret_key_2026')
@@ -97,6 +99,9 @@ def login():
         session['username'] = user['username']
         session['user_name'] = user['full_name']
         session['role'] = user['role']
+        session['user_grade'] = user['grade'] if user['grade'] else 12
+        session['specialty'] = user['specialty']
+        session['target_campus'] = user['target_campus']
 
         flash(f"Selamat datang kembali, {user['full_name']}! Anda masuk sebagai {user['role'].capitalize()}.", "success")
 
@@ -107,9 +112,19 @@ def login():
 
         if user['role'] == 'pengajar':
             return redirect(url_for('teacher_dashboard'))
-        return redirect(url_for('index'))
+        return redirect(url_for('student_dashboard'))
 
-    return render_template('login.html')
+    # GET: Load demo accounts from database for interactive POV switching
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, username, full_name, role, grade, school, specialty, target_campus FROM users WHERE role = 'siswa' ORDER BY id ASC")
+    demo_students = cursor.fetchall()
+    cursor.execute("SELECT id, username, full_name, role, school, specialty, nip FROM users WHERE role = 'pengajar' ORDER BY id ASC")
+    demo_teachers = cursor.fetchall()
+    conn.close()
+
+    preset_role = request.args.get('role', 'siswa')
+    return render_template('login.html', demo_students=demo_students, demo_teachers=demo_teachers, preset_role=preset_role)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -120,6 +135,11 @@ def register():
         phone = request.form.get('phone', '').strip()
         school = request.form.get('school', '').strip()
         role = request.form.get('role', 'siswa').strip()
+        grade_str = request.form.get('grade', '').strip()
+        grade = int(grade_str) if grade_str.isdigit() else None
+        target_campus = request.form.get('target_campus', '').strip()
+        specialty = request.form.get('specialty', '').strip()
+        nip = request.form.get('nip', '').strip()
         password = request.form.get('password', '').strip()
         confirm_password = request.form.get('confirm_password', '').strip()
 
@@ -149,16 +169,22 @@ def register():
 
         password_hash = generate_password_hash(password)
         cursor.execute('''
-        INSERT INTO users (username, email, password_hash, full_name, role, phone, school)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (username, email, password_hash, full_name, role, phone, school))
+        INSERT INTO users (
+            username, email, password_hash, full_name, role, phone, school,
+            grade, target_campus, specialty, nip
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            username, email, password_hash, full_name, role, phone, school,
+            grade, target_campus, specialty, nip
+        ))
         conn.commit()
         conn.close()
 
         flash("Pendaftaran berhasil disimpan ke database! Silakan masuk dengan ID dan password baru Anda.", "success")
-        return redirect(url_for('login'))
+        return redirect(url_for('login', role=role))
 
-    return render_template('register.html')
+    preset_role = request.args.get('role', 'siswa')
+    return render_template('register.html', preset_role=preset_role)
 
 @app.route('/logout')
 def logout():
@@ -167,14 +193,93 @@ def logout():
     return redirect(url_for('index'))
 
 # ========================================================
+# 2B. POINT OF VIEW (POV): DASHBOARD SISWA
+# ========================================================
+@app.route('/siswa/dashboard')
+@login_required
+def student_dashboard():
+    if g.user and g.user['role'] == 'pengajar':
+        flash("Akses Khusus Siswa: Anda sedang masuk dengan Akun Guru. Dialihkan ke Portal Pengajar.", "info")
+        return redirect(url_for('teacher_dashboard'))
+
+    conn = get_db()
+    cursor = conn.cursor()
+    user_id = g.user['id']
+
+    # Get student's personal quiz history
+    cursor.execute('''
+    SELECT * FROM quiz_results
+    WHERE user_id = ?
+    ORDER BY id DESC
+    ''', (user_id,))
+    recent_quizzes = cursor.fetchall()
+
+    # Aggregate student stats
+    cursor.execute('''
+    SELECT 
+        COUNT(*) as total_quizzes,
+        AVG(score) as avg_score,
+        SUM(correct_answers) as total_correct,
+        SUM(wrong_answers) as total_wrong
+    FROM quiz_results
+    WHERE user_id = ?
+    ''', (user_id,))
+    stats = cursor.fetchone()
+
+    total_quizzes = stats['total_quizzes'] or 0
+    avg_score = round(stats['avg_score'] or 0.0, 1)
+    total_correct = stats['total_correct'] or 0
+    total_wrong = stats['total_wrong'] or 0
+
+    # Student's active packages
+    cursor.execute('''
+    SELECT * FROM orders
+    WHERE (user_id = ? OR buyer_email = ?) AND payment_status IN ('paid', 'verified')
+    ORDER BY id DESC
+    ''', (user_id, g.user['email']))
+    my_packages = cursor.fetchall()
+
+    # Recommended grade for practice
+    user_grade = g.user['grade'] if (g.user and g.user['grade'] in (10, 11, 12)) else 12
+
+    # Count questions available for this grade
+    cursor.execute("SELECT COUNT(*) FROM questions WHERE grade = ?", (user_grade,))
+    grade_questions_count = cursor.fetchone()[0]
+
+    # Ruang baca highlights
+    cursor.execute("SELECT * FROM articles ORDER BY id DESC LIMIT 3")
+    recommended_articles = cursor.fetchall()
+
+    conn.close()
+
+    return render_template(
+        'student/dashboard.html',
+        recent_quizzes=recent_quizzes,
+        total_quizzes=total_quizzes,
+        avg_score=avg_score,
+        total_correct=total_correct,
+        total_wrong=total_wrong,
+        my_packages=my_packages,
+        user_grade=user_grade,
+        grade_questions_count=grade_questions_count,
+        recommended_articles=recommended_articles
+    )
+
+# ========================================================
 # 3. RUANG BELAJAR (LATIHAN SOAL KELAS 10, 11, 12 SMA)
+# ========================================================
+# ========================================================
+# 3. RUANG BELAJAR & 12 MODUL PEMBELAJARAN INTERAKTIF
 # ========================================================
 @app.route('/ruang-belajar')
 def ruang_belajar():
     conn = get_db()
     cursor = conn.cursor()
 
-    # Count questions per grade
+    is_premium = False
+    if g.user:
+        is_premium = is_premium_user(conn, user_id=g.user['id'], email=g.user['email'])
+
     cursor.execute("SELECT COUNT(*) FROM questions WHERE grade = 10")
     count_10 = cursor.fetchone()[0]
 
@@ -190,7 +295,7 @@ def ruang_belajar():
         cursor.execute('''
         SELECT * FROM quiz_results
         WHERE user_id = ?
-        ORDER BY id DESC LIMIT 5
+        ORDER BY id DESC LIMIT 6
         ''', (g.user['id'],))
         recent_results = cursor.fetchall()
 
@@ -200,6 +305,7 @@ def ruang_belajar():
         count_10=count_10,
         count_11=count_11,
         count_12=count_12,
+        is_premium=is_premium,
         recent_results=recent_results
     )
 
@@ -210,26 +316,183 @@ def paket_soal(grade):
         return redirect(url_for('ruang_belajar'))
 
     conn = get_db()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM questions WHERE grade = ? ORDER BY id ASC", (grade,))
-    questions = cursor.fetchall()
-    conn.close()
+    is_premium = False
+    if g.user:
+        is_premium = is_premium_user(conn, user_id=g.user['id'], email=g.user['email'])
+
+    available_subjects = []
+    current_subject = request.args.get('mapel', '').strip()
+
+    if grade == 12 and is_premium:
+        # User premium mendapatkan 30 soal per mata pelajaran dari bank soal premium
+        all_q = []
+        for idx, item in enumerate(PREMIUM_QUESTIONS, 1):
+            q_copy = dict(item)
+            q_copy['id'] = 1000 + idx
+            all_q.append(q_copy)
+
+        # Daftar mata pelajaran unik
+        subject_set = []
+        for q in all_q:
+            if q['subject'] not in subject_set:
+                subject_set.append(q['subject'])
+        available_subjects = subject_set
+
+        if current_subject:
+            questions = [q for q in all_q if q['subject'].lower() == current_subject.lower()]
+            if not questions:
+                questions = all_q[:30]
+        else:
+            # Default: ambil 30 soal mata pelajaran pertama (atau seluruh soal jika ingin)
+            questions = [q for q in all_q if q['subject'] == available_subjects[0]] if available_subjects else all_q[:30]
+        conn.close()
+    else:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM questions WHERE grade = ? ORDER BY id ASC", (grade,))
+        questions = cursor.fetchall()
+        conn.close()
 
     if not questions:
         flash(f"Belum ada soal latihan untuk Kelas {grade} SMA.", "info")
         return redirect(url_for('ruang_belajar'))
 
-    return render_template('paket_soal.html', grade=grade, questions=questions)
+    return render_template(
+        'paket_soal.html',
+        grade=grade,
+        questions=questions,
+        is_premium=is_premium,
+        available_subjects=available_subjects,
+        current_subject=current_subject
+    )
 
 @app.route('/ruang-belajar/submit', methods=['POST'])
 def submit_quiz():
-    grade = int(request.form.get('grade', 10))
+    grade = int(request.form.get('grade', 12))
 
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM questions WHERE grade = ? ORDER BY id ASC", (grade,))
-    questions = cursor.fetchall()
 
+    is_premium = False
+    if g.user:
+        is_premium = is_premium_user(conn, user_id=g.user['id'], email=g.user['email'])
+
+    # Build question lookup map (baik dari database maupun PREMIUM_QUESTIONS)
+    question_map = {}
+    
+    # Dari database
+    cursor.execute("SELECT * FROM questions WHERE grade = ?", (grade,))
+    for row in cursor.fetchall():
+        question_map[row['id']] = dict(row)
+
+    # Dari PREMIUM_QUESTIONS (id 1001, 1002, ...)
+    for idx, item in enumerate(PREMIUM_QUESTIONS, 1):
+        q_copy = dict(item)
+        q_copy['id'] = 1000 + idx
+        question_map[q_copy['id']] = q_copy
+
+    # Deteksi soal-soal yang ada di form
+    submitted_ids = []
+    for key in request.form.keys():
+        if key.startswith('answer_'):
+            try:
+                qid = int(key.replace('answer_', ''))
+                submitted_ids.append(qid)
+            except ValueError:
+                pass
+
+    if not submitted_ids:
+        # Fallback jika tidak terdeteksi via answer_
+        submitted_ids = list(question_map.keys())[:30]
+
+    correct_count = 0
+    wrong_count = 0
+    detailed_answers = []
+
+    for qid in submitted_ids:
+        q = question_map.get(qid)
+        if not q:
+            continue
+
+        user_choice = request.form.get(f'answer_{qid}', '').strip().upper()
+        is_correct = (user_choice == q['correct_option'])
+
+        if is_correct:
+            correct_count += 1
+        else:
+            wrong_count += 1
+
+        option_map = {
+            'A': q.get('option_a', ''),
+            'B': q.get('option_b', ''),
+            'C': q.get('option_c', ''),
+            'D': q.get('option_d', ''),
+            'E': q.get('option_e', '')
+        }
+
+        detailed_answers.append({
+            'question_id': qid,
+            'subject': q.get('subject', 'Umum'),
+            'question_text': q.get('question_text', ''),
+            'user_answer': user_choice or 'Tidak Dijawab',
+            'user_answer_text': option_map.get(user_choice, '-'),
+            'correct_option': q.get('correct_option', 'A'),
+            'correct_option_text': option_map.get(q.get('correct_option', 'A'), '-'),
+            'is_correct': is_correct,
+            'explanation': q.get('explanation', '')
+        })
+
+    total_questions = len(detailed_answers)
+    score = round((correct_count / total_questions * 100), 1) if total_questions > 0 else 0
+    user_id = g.user['id'] if g.user else 1
+
+    cursor.execute('''
+    INSERT INTO quiz_results (user_id, grade, total_questions, correct_answers, wrong_answers, score, answers_json)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''', (user_id, grade, total_questions, correct_count, wrong_count, score, json.dumps(detailed_answers)))
+    conn.commit()
+    result_id = cursor.lastrowid
+    conn.close()
+
+    flash(f"Latihan selesai! Anda menjawab {correct_count} Benar dan {wrong_count} Salah.", "success")
+    return redirect(url_for('quiz_result', result_id=result_id))
+
+# ========================================================
+# 3B. 12 MODUL PEMBELAJARAN INTERAKTIF & SIMULASI 25 SOAL
+# ========================================================
+@app.route('/modul-belajar')
+def modul_katalog():
+    """Katalog 12 Modul Pembelajaran Interaktif GoMobile."""
+    return render_template('modul_katalog.html', subjects=SUBJECTS)
+
+@app.route('/modul-belajar/<slug>')
+def modul_detail(slug):
+    """Halaman pembaca materi modul lengkap per bab."""
+    subject = SUBJECTS.get(slug)
+    if not subject:
+        flash("Modul mata pelajaran tidak ditemukan.", "warning")
+        return redirect(url_for('modul_katalog'))
+    return render_template('modul_detail.html', subject=subject)
+
+@app.route('/modul-belajar/<slug>/simulasi')
+def simulation_quiz(slug):
+    """Halaman pengerjaan simulasi 25 butir soal dengan jam real-time laptop."""
+    subject = SUBJECTS.get(slug)
+    if not subject:
+        flash("Modul mata pelajaran tidak ditemukan.", "warning")
+        return redirect(url_for('modul_katalog'))
+    
+    questions = subject.get('questions', [])
+    return render_template('simulation_quiz.html', subject=subject, questions=questions)
+
+@app.route('/modul-belajar/<slug>/simulasi/submit', methods=['POST'])
+def submit_simulation(slug):
+    """Menilai simulasi 25 soal, menyimpan skor, dan menampilkan pembahasan lengkap."""
+    subject = SUBJECTS.get(slug)
+    if not subject:
+        flash("Modul mata pelajaran tidak ditemukan.", "warning")
+        return redirect(url_for('modul_katalog'))
+
+    questions = subject.get('questions', [])
     total_questions = len(questions)
     correct_count = 0
     wrong_count = 0
@@ -244,41 +507,49 @@ def submit_quiz():
         else:
             wrong_count += 1
 
-        # Map choice letter to text
         option_map = {
-            'A': q['option_a'],
-            'B': q['option_b'],
-            'C': q['option_c'],
-            'D': q['option_d'],
-            'E': q['option_e']
+            'A': q.get('option_a', ''),
+            'B': q.get('option_b', ''),
+            'C': q.get('option_c', ''),
+            'D': q.get('option_d', ''),
+            'E': q.get('option_e', '')
         }
 
         detailed_answers.append({
             'question_id': q['id'],
-            'subject': q['subject'],
-            'question_text': q['question_text'],
-            'user_answer': user_choice or 'Tidak Dijawab',
-            'user_answer_text': option_map.get(user_choice, '-'),
+            'subject': q.get('subject', subject['title']),
+            'question_text': q.get('question_text', ''),
+            'user_choice': user_choice or 'Tidak Dijawab',
+            'user_choice_text': option_map.get(user_choice, '-'),
             'correct_option': q['correct_option'],
             'correct_option_text': option_map.get(q['correct_option'], '-'),
             'is_correct': is_correct,
-            'explanation': q['explanation']
+            'explanation': q.get('explanation', '')
         })
 
     score = round((correct_count / total_questions * 100), 1) if total_questions > 0 else 0
-    user_id = g.user['id'] if g.user else 1 # fallback guest
+    user_id = g.user['id'] if g.user else 1
 
-    # Save to database
+    # Simpan ke riwayat quiz_results database
+    conn = get_db()
+    cursor = conn.cursor()
     cursor.execute('''
     INSERT INTO quiz_results (user_id, grade, total_questions, correct_answers, wrong_answers, score, answers_json)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-    ''', (user_id, grade, total_questions, correct_count, wrong_count, score, json.dumps(detailed_answers)))
+    VALUES (?, 12, ?, ?, ?, ?, ?)
+    ''', (user_id, total_questions, correct_count, wrong_count, score, json.dumps(detailed_answers)))
     conn.commit()
-    result_id = cursor.lastrowid
     conn.close()
 
-    flash(f"Latihan selesai! Anda menjawab {correct_count} Benar dan {wrong_count} Salah.", "success")
-    return redirect(url_for('quiz_result', result_id=result_id))
+    flash(f"Simulasi {subject['title']} selesai! Skor Anda: {score} ({correct_count} Benar, {wrong_count} Salah).", "success")
+    return render_template(
+        'simulation_result.html',
+        subject=subject,
+        score=score,
+        correct_count=correct_count,
+        wrong_count=wrong_count,
+        total_questions=total_questions,
+        detailed_answers=detailed_answers
+    )
 
 @app.route('/ruang-belajar/hasil/<int:result_id>')
 def quiz_result(result_id):

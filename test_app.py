@@ -149,12 +149,13 @@ class GoMobileTestCase(unittest.TestCase):
 
     def test_06_teacher_laptop_portal(self):
         """Test Laptop version of Teacher App: Dashboard, Bank Soal, and Student Monitoring"""
-        # Login as pre-seeded teacher
-        self.client.post('/login', data={
+        # Login as pre-seeded teacher with unique password
+        res_login = self.client.post('/login', data={
             'identity': 'guru_budi',
-            'password': 'guru123',
+            'password': 'budi_mat123',
             'role': 'pengajar'
         }, follow_redirects=True)
+        self.assertEqual(res_login.status_code, 200)
 
         # Teacher Dashboard
         res_dash = self.client.get('/pengajar')
@@ -186,6 +187,91 @@ class GoMobileTestCase(unittest.TestCase):
         # Check QRIS Orders Verification page
         res_orders = self.client.get('/pengajar/verifikasi-bayar')
         self.assertEqual(res_orders.status_code, 200)
+
+    def test_07_modul_katalog_and_all_12_subjects(self):
+        """Test 12 subject modules catalog and individual chapter reader"""
+        res_cat = self.client.get('/modul-belajar')
+        self.assertEqual(res_cat.status_code, 200)
+        cat_html = res_cat.data.decode('utf-8')
+        
+        # Verify 12 subjects are present in catalog
+        subjects = [
+            'Sosiologi', 'Matematika Tingkat Lanjut', 'Bahasa Indonesia Tingkat Lanjut',
+            'Bahasa Inggris Tingkat Lanjut', 'Pelajaran Kewirausahaan', 'IPA Terpadu',
+            'Pendidikan Pancasila dan Kewarganegaraan', 'IPS Terpadu', 'Sejarah &amp; Antropologi',
+            'Bahasa Arab', 'Bahasa Jepang', 'Bahasa Mandarin'
+        ]
+        for sub in subjects:
+            self.assertIn(sub, cat_html)
+
+        # Test viewing detail page of Sosiologi
+        res_sos = self.client.get('/modul-belajar/sosiologi')
+        self.assertEqual(res_sos.status_code, 200)
+        self.assertIn('Sosiologi', res_sos.data.decode('utf-8'))
+        self.assertIn('Simulasi CAT', res_sos.data.decode('utf-8'))
+
+    def test_08_simulation_25_questions_quiz_and_submit(self):
+        """Test 25 questions simulation page, live clock markup, and score evaluation"""
+        # View simulation page for IPA Terpadu
+        res_quiz = self.client.get('/modul-belajar/ipa-terpadu/simulasi')
+        self.assertEqual(res_quiz.status_code, 200)
+        quiz_html = res_quiz.data.decode('utf-8')
+        
+        # Verify real-time clock container is present
+        self.assertIn('liveClockTime', quiz_html)
+        self.assertIn('liveClockDate', quiz_html)
+        self.assertIn('elapsedTimer', quiz_html)
+        self.assertIn('25 Soal', quiz_html)
+
+        # Submit answers (all A)
+        form_data = {}
+        for qid in range(1, 26):
+            form_data[f'answer_{qid}'] = 'A'
+
+        res_submit = self.client.post('/modul-belajar/ipa-terpadu/simulasi/submit', data=form_data, follow_redirects=True)
+        self.assertEqual(res_submit.status_code, 200)
+        sub_html = res_submit.data.decode('utf-8')
+        self.assertIn('Hasil Evaluasi', sub_html)
+        self.assertIn('Skor Akhir CAT', sub_html)
+        self.assertIn('Pembahasan Detail 25 Butir Soal', sub_html)
+
+    def test_09_premium_user_bank_soal_30_questions(self):
+        """Test that premium user gets 30 questions per subject in Bank Soal Kelas 12"""
+        # Login as premium student Ahmad
+        res_login = self.client.post('/login', data={
+            'identity': 'siswa_ahmad',
+            'password': 'ahmad_pass123',
+            'role': 'siswa'
+        }, follow_redirects=True)
+        self.assertEqual(res_login.status_code, 200)
+
+        # Check Bank Soal Kelas 12
+        res_k12 = self.client.get('/ruang-belajar/kelas/12')
+        self.assertEqual(res_k12.status_code, 200)
+        k12_html = res_k12.data.decode('utf-8')
+        
+        # Verify premium badge and 30 questions available
+        self.assertIn('Premium (30 Soal / Mapel)', k12_html)
+        self.assertIn('liveClockTime', k12_html)
+
+    def test_10_unique_passwords_for_all_users(self):
+        """Test each demo user has distinct password and can login"""
+        accounts = [
+            ('siswa_zahra', 'zahra_pass456', 'siswa'),
+            ('siswa_dimas', 'dimas_pass789', 'siswa'),
+            ('siswa_nayla', 'nayla_pass321', 'siswa'),
+            ('guru_siti', 'siti_fis456', 'pengajar'),
+            ('guru_andi', 'andi_tps789', 'pengajar')
+        ]
+        for username, password, role in accounts:
+            res = self.client.post('/login', data={
+                'identity': username,
+                'password': password,
+                'role': role
+            }, follow_redirects=True)
+            self.assertEqual(res.status_code, 200)
+            self.assertIn('/logout', res.data.decode('utf-8'))
+            self.client.get('/logout')
 
 if __name__ == '__main__':
     unittest.main()

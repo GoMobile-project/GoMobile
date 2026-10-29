@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Belajar Siswa - GoMobile{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- =======================================================
+       1. HERO HEADER: POINT OF VIEW (POV) SISWA
+       ======================================================= -->
+  <section style="background:linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #3B82F6 100%);color:#FFF;border-radius:var(--radius-xl);padding:2.25rem 2rem;margin-bottom:2rem;box-shadow:var(--shadow-lg);position:relative;overflow:hidden;">
+    <div style="position:absolute;right:-40px;top:-40px;width:200px;height:200px;background:rgba(255,255,255,0.08);border-radius:999px;pointer-events:none;"></div>
+    
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.5rem;position:relative;z-index:2;">
+      <div style="display:flex;align-items:center;gap:1.25rem;">
+        <div style="width:72px;height:72px;border-radius:999px;background:#FFF;color:#2563EB;font-weight:800;font-size:2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(0,0,0,0.15);flex-shrink:0;">
+          {{ g.user['full_name'][0]|upper }}
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.25rem;">
+            <span class="badge" style="background:rgba(255,255,255,0.22);color:#FFF;font-size:0.75rem;padding:0.25rem 0.6rem;backdrop-filter:blur(4px);">
+              🎓 POV Siswa Aktif
+            </span>
+            <span class="badge" style="background:#10B981;color:#FFF;font-size:0.75rem;padding:0.25rem 0.6rem;">
+              Kelas {{ user_grade }} SMA
+            </span>
+          </div>
+          <h1 style="font-size:1.75rem;font-weight:800;margin:0;line-height:1.2;">
+            Halo, {{ g.user['full_name'] }}!
+          </h1>
+          <p style="margin-top:0.35rem;font-size:0.92rem;opacity:0.92;">
+            {{ g.user['school'] or 'SMA Indonesia' }} &bull; ID: <code>{{ g.user['username'] }}</code>
+          </p>
+        </div>
+      </div>
+
+      <!-- Target Kampus Impian -->
+      <div style="background:rgba(255,255,255,0.12);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.25);border-radius:var(--radius-lg);padding:1rem 1.25rem;min-width:240px;">
+        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;opacity:0.85;font-weight:700;">
+          Target Kampus &amp; Jurusan Impian
+        </div>
+        <div style="font-size:1.05rem;font-weight:800;margin-top:0.25rem;color:#FDE047;">
+          🎯 {{ g.user['target_campus'] or 'Universitas Negeri Favorit' }}
+        </div>
+        <div style="font-size:0.78rem;margin-top:0.35rem;opacity:0.85;">
+          Fokuskan latihan soal di Ruang Belajar untuk memperbesar peluang lolos!
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =======================================================
+       2. KPI STATISTIK BELAJAR SISWA
+       ======================================================= -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));gap:1rem;margin-bottom:2.25rem;">
+    <!-- Rata-rata Skor -->
+    <div style="background:#FFF;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:1.25rem;box-shadow:var(--shadow-sm);border-left:4px solid #2563EB;">
+      <div style="color:var(--gray-500);font-size:0.8rem;font-weight:600;text-transform:uppercase;">Rata-rata Skor Latihan</div>
+      <div style="font-size:2rem;font-weight:800;color:var(--dark);margin-top:0.25rem;">
+        {{ avg_score }} <span style="font-size:1rem;color:var(--gray-500);font-weight:600;">/ 100</span>
+      </div>
+      <div style="font-size:0.8rem;color:{% if avg_score >= 80 %}#059669{% elif avg_score >= 60 %}#D97706{% else %}#DC2626{% endif %};font-weight:700;margin-top:0.25rem;">
+        {% if avg_score >= 80 %}🌟 Pemahaman Sangat Baik{% elif avg_score >= 60 %}👍 Cukup Baik, Tingkatkan Latihan{% else %}💪 Mulai Latihan Rutin{% endif %}
+      </div>
+    </div>
+
+    <!-- Total Kuis Dikerjakan -->
+    <div style="background:#FFF;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:1.25rem;box-shadow:var(--shadow-sm);border-left:4px solid #7C3AED;">
+      <div style="color:var(--gray-500);font-size:0.8rem;font-weight:600;text-transform:uppercase;">Total Kuis Selesai</div>
+      <div style="font-size:2rem;font-weight:800;color:var(--dark);margin-top:0.25rem;">
+        {{ total_quizzes }} <span style="font-size:1rem;color:var(--gray-500);font-weight:600;">Paket</span>
+      </div>
+      <div style="font-size:0.8rem;color:var(--gray-600);margin-top:0.25rem;">
+        Tersedia bank soal untuk Kelas 10, 11, 12
+      </div>
+    </div>
+
+    <!-- Akumulasi Benar vs Salah -->
+    <div style="background:#FFF;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:1.25rem;box-shadow:var(--shadow-sm);border-left:4px solid #10B981;">
+      <div style="color:var(--gray-500);font-size:0.8rem;font-weight:600;text-transform:uppercase;">Akurasi Jawaban</div>
+      <div style="font-size:1.75rem;font-weight:800;color:#059669;margin-top:0.25rem;">
+        {{ total_correct }} <span style="font-size:0.95rem;color:var(--gray-500);font-weight:500;">Benar</span>
+        <span style="color:var(--gray-400);font-weight:300;">|</span>
+        <span style="color:#DC2626;">{{ total_wrong }}</span> <span style="font-size:0.95rem;color:var(--gray-500);font-weight:500;">Salah</span>
+      </div>
+      <div style="font-size:0.8rem;color:var(--gray-600);margin-top:0.25rem;">
+        Dari seluruh latihan yang pernah dikerjakan
+      </div>
+    </div>
+
+    <!-- Status Paket Belajar -->
+    <div style="background:#FFF;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:1.25rem;box-shadow:var(--shadow-sm);border-left:4px solid #F59E0B;">
+      <div style="color:var(--gray-500);font-size:0.8rem;font-weight:600;text-transform:uppercase;">Status Modul Belajar</div>
+      <div style="font-size:1.15rem;font-weight:800;color:var(--dark);margin-top:0.45rem;">
+        {% if my_packages %}
+          <span style="color:#059669;">🏆 Paket Premium QRIS</span>
+        {% else %}
+          <span>📚 Paket Dasar (Free)</span>
+        {% endif %}
+      </div>
+      <div style="font-size:0.8rem;color:var(--gray-600);margin-top:0.35rem;">
+        {% if my_packages %}
+          {{ my_packages|length }} Paket modul UTBK-SNBT aktif
+        {% else %}
+          <a href="{{ url_for('paket_berbayar') }}" style="color:#D97706;font-weight:700;text-decoration:none;">Upgrade ke Premium QRIS &rarr;</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- =======================================================
+       3. REKOMENDASI LATIHAN SOAL SESUAI JENJANG SISWA
+       ======================================================= -->
+  <div style="background:#FFF;border:1px solid var(--gray-200);border-radius:var(--radius-xl);padding:1.75rem;margin-bottom:2.25rem;box-shadow:var(--shadow-sm);">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem;">
+      <div>
+        <span class="badge badge-primary" style="margin-bottom:0.35rem;">Rekomendasi Jenjang Anda</span>
+        <h2 style="font-size:1.35rem;font-weight:800;color:var(--dark);margin:0;">
+          Latihan Soal Kelas {{ user_grade }} SMA
+        </h2>
+        <p style="font-size:0.88rem;color:var(--gray-600);margin-top:0.2rem;">
+          Tersedia {{ grade_questions_count }} soal siap uji dengan pembahasan langsung di akhir sesi kuis.
+        </p>
+      </div>
+      <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+        <a href="{{ url_for('paket_soal', grade=user_grade) }}" class="btn btn-primary" style="font-weight:700;">
+          Kerjakan Latihan Kelas {{ user_grade }} &rarr;
+        </a>
+        <a href="{{ url_for('ruang_belajar') }}" class="btn btn-secondary" style="font-size:0.88rem;">
+          Pilih Jenjang Lain
+        </a>
+      </div>
+    </div>
+
+    <!-- Quick Grade Selector Tabs -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:1rem;margin-top:1rem;">
+      <a href="{{ url_for('paket_soal', grade=10) }}" style="text-decoration:none;background:#F8FAFC;border:1px solid {% if user_grade == 10 %}#3B82F6{% else %}var(--gray-200){% endif %};border-radius:var(--radius-md);padding:1rem;display:flex;align-items:center;justify-content:space-between;transition:all 0.2s;">
+        <div>
+          <span style="font-size:0.75rem;color:var(--primary);font-weight:700;">Fase E SMA</span>
+          <div style="font-weight:800;font-size:1.05rem;color:var(--dark);">Kelas 10 SMA</div>
+          <div style="font-size:0.78rem;color:var(--gray-500);">Nilai Mutlak, GLBB, Konfigurasi Bohr</div>
+        </div>
+        <span style="font-size:1.25rem;color:var(--primary);">&rarr;</span>
+      </a>
+
+      <a href="{{ url_for('paket_soal', grade=11) }}" style="text-decoration:none;background:#F8FAFC;border:1px solid {% if user_grade == 11 %}#3B82F6{% else %}var(--gray-200){% endif %};border-radius:var(--radius-md);padding:1rem;display:flex;align-items:center;justify-content:space-between;transition:all 0.2s;">
+        <div>
+          <span style="font-size:0.75rem;color:#4F46E5;font-weight:700;">Fase F Lanjutan</span>
+          <div style="font-weight:800;font-size:1.05rem;color:var(--dark);">Kelas 11 SMA</div>
+          <div style="font-size:0.78rem;color:var(--gray-500);">Deret Aritmetika, Termo, Titrasi Asam Basa</div>
+        </div>
+        <span style="font-size:1.25rem;color:#4F46E5;">&rarr;</span>
+      </a>
+
+      <a href="{{ url_for('paket_soal', grade=12) }}" style="text-decoration:none;background:#F8FAFC;border:1px solid {% if user_grade == 12 %}#3B82F6{% else %}var(--gray-200){% endif %};border-radius:var(--radius-md);padding:1rem;display:flex;align-items:center;justify-content:space-between;transition:all 0.2s;">
+        <div>
+          <span style="font-size:0.75rem;color:#0D9488;font-weight:700;">Persiapan UTBK SNBT</span>
+          <div style="font-weight:800;font-size:1.05rem;color:var(--dark);">Kelas 12 SMA</div>
+          <div style="font-size:0.78rem;color:var(--gray-500);">Limit Kalkulus, Gaya Lorentz, Sel Volta</div>
+        </div>
+        <span style="font-size:1.25rem;color:#0D9488;">&rarr;</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- =======================================================
+       4. RIWAYAT EVALUASI LATIHAN SISWA (POINT OF VIEW PRIBADI)
+       ======================================================= -->
+  <div style="background:#FFF;border:1px solid var(--gray-200);border-radius:var(--radius-xl);padding:1.75rem;margin-bottom:2.25rem;box-shadow:var(--shadow-sm);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <div>
+        <h2 style="font-size:1.35rem;font-weight:800;color:var(--dark);margin:0;">
+          Riwayat Evaluasi Latihan Soal
+        </h2>
+        <p style="font-size:0.88rem;color:var(--gray-600);margin-top:0.2rem;">
+          Hasil pengerjaan kuis pribadi Anda lengkap dengan skor dan kunci pembahasan.
+        </p>
+      </div>
+      {% if recent_quizzes %}
+        <span class="badge badge-primary">{{ recent_quizzes|length }} Latihan Tercatat</span>
+      {% endif %}
+    </div>
+
+    {% if recent_quizzes %}
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
+          <thead>
+            <tr style="background:#F8FAFC;border-bottom:2px solid var(--gray-200);text-align:left;">
+              <th style="padding:0.75rem 1rem;font-weight:700;color:var(--dark);">Jenjang</th>
+              <th style="padding:0.75rem 1rem;font-weight:700;color:var(--dark);">Total Soal</th>
+              <th style="padding:0.75rem 1rem;font-weight:700;color:var(--dark);">Benar</th>
+              <th style="padding:0.75rem 1rem;font-weight:700;color:var(--dark);">Salah</th>
+              <th style="padding:0.75rem 1rem;font-weight:700;color:var(--dark);">Skor Akhir</th>
+              <th style="padding:0.75rem 1rem;font-weight:700;color:var(--dark);">Waktu Pengerjaan</th>
+              <th style="padding:0.75rem 1rem;font-weight:700;color:var(--dark);text-align:right;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for q in recent_quizzes %}
+            <tr style="border-bottom:1px solid var(--gray-200);">
+              <td style="padding:0.75rem 1rem;font-weight:700;">
+                <span class="badge" style="background:#EFF6FF;color:#1E40AF;">Kelas {{ q.grade }} SMA</span>
+              </td>
+              <td style="padding:0.75rem 1rem;">{{ q.total_questions }} Soal</td>
+              <td style="padding:0.75rem 1rem;color:#059669;font-weight:700;">{{ q.correct_answers }}</td>
+              <td style="padding:0.75rem 1rem;color:#DC2626;font-weight:700;">{{ q.wrong_answers }}</td>
+              <td style="padding:0.75rem 1rem;">
+                <span style="font-weight:800;font-size:1.05rem;color:{% if q.score >= 80 %}#059669{% elif q.score >= 60 %}#D97706{% else %}#DC2626{% endif %};">
+                  {{ q.score|round(1) }}
+                </span>
+              </td>
+              <td style="padding:0.75rem 1rem;font-size:0.82rem;color:var(--gray-500);">
+                {{ q.created_at }}
+              </td>
+              <td style="padding:0.75rem 1rem;text-align:right;">
+                <a href="{{ url_for('quiz_result', result_id=q.id) }}" class="btn btn-secondary" style="font-size:0.78rem;padding:0.3rem 0.65rem;border-radius:6px;">
+                  Buka Kunci Jawaban &rarr;
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div style="text-align:center;padding:2.5rem 1rem;background:#F8FAFC;border-radius:var(--radius-lg);border:1px dashed var(--gray-300);">
+        <div style="font-size:2.5rem;margin-bottom:0.5rem;">📝</div>
+        <h3 style="font-weight:800;color:var(--dark);margin-bottom:0.25rem;">Belum Ada Latihan yang Dikerjakan</h3>
+        <p style="color:var(--gray-600);font-size:0.88rem;max-width:400px;margin:0 auto 1.25rem;">
+          Mulai asah kemampuan Anda dengan mengerjakan paket soal pilihan ganda di Ruang Belajar.
+        </p>
+        <a href="{{ url_for('paket_soal', grade=user_grade) }}" class="btn btn-primary" style="font-weight:700;">
+          Mulai Latihan Kelas {{ user_grade }} Sekarang &rarr;
+        </a>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- =======================================================
+       5. PAKET MATERI PREMIUM & REKOMENDASI BACAAN
+       ======================================================= -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:1.5rem;margin-bottom:3rem;">
+    <!-- Modul Belajar & QRIS Saya -->
+    <div style="background:#FFF;border:1px solid var(--gray-200);border-radius:var(--radius-xl);padding:1.75rem;box-shadow:var(--shadow-sm);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+        <h3 style="font-size:1.15rem;font-weight:800;color:var(--dark);margin:0;">
+          Paket Materi Saya
+        </h3>
+        <a href="{{ url_for('paket_berbayar') }}" style="font-size:0.8rem;color:var(--primary);font-weight:700;text-decoration:none;">
+          Beli Paket &rarr;
+        </a>
+      </div>
+
+      {% if my_packages %}
+        <div style="display:flex;flex-direction:column;gap:0.75rem;">
+          {% for pkg in my_packages %}
+          <div style="border:1px solid #D1FAE5;background:#ECFDF5;border-radius:var(--radius-md);padding:0.85rem 1rem;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-weight:700;color:#065F46;font-size:0.92rem;">{{ pkg.package_title }}</div>
+              <div style="font-size:0.75rem;color:#047857;margin-top:2px;">
+                Kode: <code>{{ pkg.order_code }}</code> &bull; Status: <strong style="text-transform:uppercase;">{{ pkg.payment_status }}</strong>
+              </div>
+            </div>
+            <a href="{{ url_for('materi_premium', slug='intensif-snbt') }}" class="btn btn-primary" style="font-size:0.75rem;padding:0.35rem 0.75rem;background:#059669;border-color:#059669;">
+              Buka Modul &rarr;
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:var(--radius-md);padding:1rem;color:#92400E;font-size:0.85rem;">
+          <strong>Belum Ada Paket Premium:</strong> Anda saat ini menggunakan paket dasar gratis. Ingin pembahasan eksklusif TKA, UTBK &amp; SNBT lengkap?
+          <div style="margin-top:0.75rem;">
+            <a href="{{ url_for('paket_berbayar') }}" class="btn btn-warning" style="font-size:0.8rem;padding:0.4rem 0.85rem;font-weight:800;">
+              Lihat Paket QRIS Mulai Rp 500.000 &rarr;
+            </a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Rekomendasi Ruang Baca -->
+    <div style="background:#FFF;border:1px solid var(--gray-200);border-radius:var(--radius-xl);padding:1.75rem;box-shadow:var(--shadow-sm);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+        <h3 style="font-size:1.15rem;font-weight:800;color:var(--dark);margin:0;">
+          Rekomendasi Ruang Baca
+        </h3>
+        <a href="{{ url_for('ruang_baca') }}" style="font-size:0.8rem;color:var(--primary);font-weight:700;text-decoration:none;">
+          Buka Semua &rarr;
+        </a>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:0.75rem;">
+        {% for art in recommended_articles %}
+        <a href="{{ url_for('artikel_detail', article_id=art.id) }}" style="text-decoration:none;display:block;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:0.75rem 0.9rem;transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--gray-200)'">
+          <div style="font-weight:700;font-size:0.88rem;color:var(--dark);">
+            {{ art.title }}
+          </div>
+          <div style="font-size:0.75rem;color:var(--gray-500);margin-top:2px;">
+            {{ art.category|capitalize }} &bull; {{ art.read_time }} membaca
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -45,6 +45,14 @@
             Ruang Belajar
           </a>
 
+          <!-- 12 Modul & Simulasi CAT -->
+          <a href="{{ url_for('modul_katalog') }}" class="nav-link-center {% if request.endpoint and 'modul' in request.endpoint %}active{% endif %}">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+            12 Modul &amp; Simulasi
+          </a>
+
           <!-- Ruang Baca (Di Samping Ruang Belajar) -->
           <a href="{{ url_for('ruang_baca') }}" class="nav-link-center {% if request.endpoint and 'ruang_baca' in request.endpoint %}active{% endif %}">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">

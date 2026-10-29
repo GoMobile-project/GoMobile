@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Katalog 12 Modul Pelajaran &amp; Simulasi CAT - GoMobile{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- Header Banner Katalog Modul -->
+  <div style="background:linear-gradient(135deg, #0F172A 0%, #1E293B 100%);color:#FFF;border-radius:var(--radius-xl);padding:2.5rem 2rem;margin-bottom:2.25rem;box-shadow:var(--shadow-md);">
+    <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.18);padding:0.35rem 0.9rem;border-radius:999px;font-size:0.82rem;font-weight:700;margin-bottom:0.85rem;">
+      <svg style="width:16px;height:16px;color:#FBBF24;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+      </svg>
+      Modul Interaktif &amp; Bank Soal CAT
+    </div>
+    <h1 style="font-size:clamp(1.75rem, 3.8vw, 2.5rem);font-weight:800;margin-bottom:0.75rem;">
+      12 Modul Pembelajaran &amp; Simulasi 25 Soal
+    </h1>
+    <p style="font-size:1.02rem;color:#E2E8F0;max-width:820px;line-height:1.65;">
+      Seluruh modul dan paket simulasi dapat <strong>diklik dan dipelajari langsung</strong>. Setiap mata pelajaran dilengkapi dengan modul pembelajaran mendalam dan <strong>simulasi 25 butir soal HOTS</strong> berwaktu real-time yang sinkron dengan jam laptop Anda.
+    </p>
+  </div>
+
+  <!-- Filter Kategori Modul -->
+  <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:2rem;">
+    <button class="btn btn-secondary filter-btn active" onclick="filterCategory('all', this)" style="border-radius:999px;padding:0.4rem 1.1rem;font-size:0.85rem;">
+      Semua (12 Mata Pelajaran)
+    </button>
+    <button class="btn btn-secondary filter-btn" onclick="filterCategory('saintek', this)" style="border-radius:999px;padding:0.4rem 1.1rem;font-size:0.85rem;">
+      Sains &amp; Teknologi
+    </button>
+    <button class="btn btn-secondary filter-btn" onclick="filterCategory('soshum', this)" style="border-radius:999px;padding:0.4rem 1.1rem;font-size:0.85rem;">
+      Sosial &amp; Humaniora
+    </button>
+    <button class="btn btn-secondary filter-btn" onclick="filterCategory('bahasa', this)" style="border-radius:999px;padding:0.4rem 1.1rem;font-size:0.85rem;">
+      Bahasa Lanjutan &amp; Asing
+    </button>
+    <button class="btn btn-secondary filter-btn" onclick="filterCategory('kejuruan', this)" style="border-radius:999px;padding:0.4rem 1.1rem;font-size:0.85rem;">
+      Kewirausahaan &amp; PPKn
+    </button>
+  </div>
+
+  <!-- Grid 12 Kartu Modul -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(340px, 1fr));gap:1.5rem;margin-bottom:3rem;" id="modulesGrid">
+    {% for slug, sub in subjects.items() %}
+    <div class="module-card-item" data-category="{{ sub.category }}" style="background:#FFF;border-radius:var(--radius-xl);border:1px solid var(--gray-200);box-shadow:var(--shadow-sm);display:flex;flex-direction:column;overflow:hidden;transition:all 0.2s ease;">
+      
+      <!-- Header Kartu -->
+      <div style="padding:1.4rem 1.5rem 1rem;border-bottom:1px solid var(--gray-100);display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem;">
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <div style="width:48px;height:48px;border-radius:var(--radius-md);background:{{ sub.color }}18;color:{{ sub.color }};display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;">
+            {{ sub.icon }}
+          </div>
+          <div>
+            <span class="badge" style="background:{{ sub.color }}15;color:{{ sub.color }};font-size:0.7rem;font-weight:700;margin-bottom:0.25rem;">
+              {{ sub.badge }}
+            </span>
+            <h3 style="font-size:1.15rem;font-weight:800;color:var(--dark);line-height:1.3;">
+              {{ sub.title }}
+            </h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Body Kartu -->
+      <div style="padding:1.25rem 1.5rem;display:flex;flex-direction:column;flex-grow:1;">
+        <p style="font-size:0.88rem;color:var(--gray-600);line-height:1.55;margin-bottom:1rem;">
+          {{ sub.summary }}
+        </p>
+
+        <!-- Bab-bab modul preview -->
+        <div style="background:#F8FAFC;border:1px solid var(--gray-200);border-radius:var(--radius-md);padding:0.75rem 0.85rem;margin-bottom:1.25rem;">
+          <div style="font-size:0.76rem;font-weight:700;color:var(--gray-500);text-transform:uppercase;margin-bottom:0.4rem;display:flex;align-items:center;justify-content:space-between;">
+            <span>Silabus &amp; Bab Kunci</span>
+            <span style="color:var(--primary);">{{ sub.chapters|length }} Bab Lengkap</span>
+          </div>
+          <ul style="margin:0;padding-left:1.1rem;font-size:0.82rem;color:var(--gray-700);line-height:1.5;">
+            {% for ch in sub.chapters[:2] %}
+            <li>{{ ch.title }}</li>
+            {% endfor %}
+            {% if sub.chapters|length > 2 %}
+            <li style="color:var(--primary);font-weight:600;">+ {{ sub.chapters|length - 2 }} bab lanjutan lainnya...</li>
+            {% endif %}
+          </ul>
+        </div>
+
+        <!-- Tombol Aksi: Keduanya BISA DIKLIK -->
+        <div style="margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;">
+          <a href="{{ url_for('modul_detail', slug=slug) }}" class="btn btn-secondary" style="font-size:0.82rem;padding:0.55rem 0.6rem;text-align:center;font-weight:700;display:flex;align-items:center;justify-content:center;gap:0.35rem;">
+            <span>📖</span>
+            <span>Pelajari Modul</span>
+          </a>
+          <a href="{{ url_for('simulation_quiz', slug=slug) }}" class="btn btn-primary" style="background:{{ sub.color }};border-color:{{ sub.color }};font-size:0.82rem;padding:0.55rem 0.6rem;text-align:center;font-weight:700;display:flex;align-items:center;justify-content:center;gap:0.35rem;">
+            <span>⏱️</span>
+            <span>Simulasi 25 Soal</span>
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function filterCategory(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const cards = document.querySelectorAll('.module-card-item');
+  cards.forEach(card => {
+    const cardCat = card.getAttribute('data-category');
+    if (cat === 'all' || cardCat === cat) {
+      card.style.display = 'flex';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+</script>
+{% endblock %}

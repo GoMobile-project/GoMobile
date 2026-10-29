@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Hasil Simulasi CAT: {{ subject.title }} - GoMobile{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div style="font-size:0.85rem;color:var(--gray-500);margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+    <a href="{{ url_for('ruang_belajar') }}" style="color:var(--primary);text-decoration:none;">Ruang Belajar</a>
+    <span>&rsaquo;</span>
+    <a href="{{ url_for('modul_katalog') }}" style="color:var(--primary);text-decoration:none;">Katalog Modul</a>
+    <span>&rsaquo;</span>
+    <a href="{{ url_for('modul_detail', slug=subject.slug) }}" style="color:var(--primary);text-decoration:none;">{{ subject.title }}</a>
+    <span>&rsaquo;</span>
+    <span style="color:var(--gray-700);font-weight:600;">Hasil Evaluasi</span>
+  </div>
+
+  <!-- Skor Card Ringkasan -->
+  <div style="background:#FFF;border-radius:var(--radius-xl);border:1px solid var(--gray-200);box-shadow:var(--shadow-md);padding:2.5rem 2rem;margin-bottom:2.5rem;text-align:center;">
+    
+    <div style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.9rem;border-radius:999px;font-size:0.82rem;font-weight:700;margin-bottom:1rem;background:{{ subject.color }}15;color:{{ subject.color }};">
+      <span>{{ subject.icon }}</span>
+      <span>Simulasi 25 Soal: {{ subject.title }}</span>
+    </div>
+
+    <h1 style="font-size:clamp(1.75rem, 3.5vw, 2.25rem);font-weight:800;color:var(--dark);margin-bottom:0.5rem;">
+      Hasil Evaluasi Simulasi Mandiri
+    </h1>
+    <p style="font-size:0.95rem;color:var(--gray-600);max-width:640px;margin:0 auto 1.75rem;line-height:1.6;">
+      Latihan 25 butir soal berbobot CAT IRT telah berhasil dikoreksi otomatis oleh sistem. Berikut analisis perolehan nilai dan pembahasan komprehensif Anda.
+    </p>
+
+    <!-- Lingkaran Skor & Metrik -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:2rem;flex-wrap:wrap;margin-bottom:2rem;">
+      
+      <!-- Skor Utama -->
+      <div style="background:linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);color:#FFF;border-radius:var(--radius-xl);padding:1.5rem 2.5rem;min-width:220px;box-shadow:var(--shadow-md);">
+        <div style="font-size:0.82rem;color:#C7D2FE;text-transform:uppercase;font-weight:700;">Skor Akhir CAT</div>
+        <div style="font-size:3.2rem;font-weight:900;color:#FBBF24;line-height:1.1;margin:0.25rem 0;">
+          {{ score }}
+        </div>
+        <div style="font-size:0.85rem;color:#E0E7FF;">Skala 0 - 100</div>
+      </div>
+
+      <!-- Detail Jawaban Benar & Salah -->
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+        <div style="background:#ECFDF5;border:1px solid #A7F3D0;border-radius:var(--radius-lg);padding:1.25rem 1.75rem;min-width:140px;text-align:center;">
+          <div style="font-size:0.8rem;color:#065F46;font-weight:700;text-transform:uppercase;">Jawaban Benar</div>
+          <div style="font-size:2.2rem;font-weight:800;color:#059669;margin:0.2rem 0;">{{ correct_count }}</div>
+          <div style="font-size:0.75rem;color:#047857;">dari {{ total_questions }} Soal</div>
+        </div>
+
+        <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:var(--radius-lg);padding:1.25rem 1.75rem;min-width:140px;text-align:center;">
+          <div style="font-size:0.8rem;color:#991B1B;font-weight:700;text-transform:uppercase;">Jawaban Salah</div>
+          <div style="font-size:2.2rem;font-weight:800;color:#DC2626;margin:0.2rem 0;">{{ wrong_count }}</div>
+          <div style="font-size:0.75rem;color:#B91C1C;">dari {{ total_questions }} Soal</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tombol Navigasi Aksi -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:0.75rem;flex-wrap:wrap;">
+      <a href="{{ url_for('simulation_quiz', slug=subject.slug) }}" class="btn btn-secondary" style="font-weight:700;">
+        🔄 Ulangi Simulasi Ini
+      </a>
+      <a href="{{ url_for('modul_detail', slug=subject.slug) }}" class="btn btn-secondary" style="font-weight:700;">
+        📖 Buka Materi Modul
+      </a>
+      <a href="{{ url_for('modul_katalog') }}" class="btn btn-primary" style="background:var(--primary);font-weight:700;">
+        🚀 Pilih Mata Pelajaran Lain &rarr;
+      </a>
+    </div>
+
+  </div>
+
+  <!-- PEMBAHASAN DETAIL 25 BUTIR SOAL -->
+  <div style="margin-bottom:3rem;">
+    <h2 style="font-size:1.4rem;font-weight:800;color:var(--dark);margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg style="width:22px;height:22px;color:var(--primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+      </svg>
+      Pembahasan Detail 25 Butir Soal
+    </h2>
+
+    {% for item in detailed_answers %}
+    <div style="background:#FFF;border-radius:var(--radius-lg);border:1px solid {% if item.is_correct %}#A7F3D0{% else %}#FECACA{% endif %};box-shadow:var(--shadow-sm);padding:1.5rem;margin-bottom:1.5rem;">
+      
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;padding-bottom:0.6rem;border-bottom:1px solid var(--gray-100);">
+        <span class="badge" style="background:#F1F5F9;color:var(--gray-700);font-weight:800;">
+          Nomor {{ loop.index }}
+        </span>
+        {% if item.is_correct %}
+        <span class="badge badge-success" style="font-size:0.8rem;padding:0.3rem 0.75rem;">
+          &#10004; Jawaban Anda Benar
+        </span>
+        {% else %}
+        <span class="badge badge-danger" style="font-size:0.8rem;padding:0.3rem 0.75rem;">
+          &#10008; Jawaban Anda Kurang Tepat
+        </span>
+        {% endif %}
+      </div>
+
+      <div style="font-size:1rem;color:var(--dark);line-height:1.6;font-weight:600;margin-bottom:1rem;white-space:pre-line;">
+        {{ item.question_text }}
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));gap:0.75rem;margin-bottom:1rem;">
+        <div style="padding:0.6rem 0.9rem;border-radius:var(--radius-md);background:{% if item.is_correct %}#ECFDF5{% else %}#FEF2F2{% endif %};border:1px solid {% if item.is_correct %}#A7F3D0{% else %}#FECACA{% endif %};">
+          <div style="font-size:0.74rem;color:var(--gray-500);text-transform:uppercase;font-weight:700;">Jawaban Anda:</div>
+          <div style="font-weight:800;color:{% if item.is_correct %}#059669{% else %}#DC2626{% endif %};font-size:0.92rem;margin-top:2px;">
+            {{ item.user_choice }}. {{ item.user_choice_text }}
+          </div>
+        </div>
+
+        <div style="padding:0.6rem 0.9rem;border-radius:var(--radius-md);background:#F0FDF4;border:1px solid #BBF7D0;">
+          <div style="font-size:0.74rem;color:#166534;text-transform:uppercase;font-weight:700;">Kunci Jawaban Resmi:</div>
+          <div style="font-weight:800;color:#15803D;font-size:0.92rem;margin-top:2px;">
+            {{ item.correct_option }}. {{ item.correct_option_text }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Kotak Pembahasan Langkah demi Langkah -->
+      <div style="background:#F8FAFC;border-left:4px solid var(--primary);padding:1rem 1.25rem;border-radius:0 var(--radius-md) var(--radius-md) 0;">
+        <strong style="color:var(--primary);font-size:0.85rem;display:block;margin-bottom:0.35rem;">
+          Pembahasan &amp; Analisis Kunci:
+        </strong>
+        <div style="font-size:0.9rem;color:var(--gray-700);line-height:1.6;white-space:pre-line;">
+          {{ item.explanation }}
+        </div>
+      </div>
+
+    </div>
+    {% endfor %}
+
+  </div>
+
+</div>
+{% endblock %}

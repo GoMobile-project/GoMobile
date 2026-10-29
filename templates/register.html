@@ -4,45 +4,51 @@
 
 {% block content %}
 <div class="container-narrow">
-  <div class="auth-wrapper" style="max-width:560px;">
-    <div style="text-align:center;margin-bottom:1.75rem;">
-      <div class="brand-icon" style="margin:0 auto 1rem;width:48px;height:48px;font-size:1.5rem;">G</div>
-      <h1 style="font-size:1.6rem;font-weight:800;color:var(--dark);">Pendaftaran Akun GoMobile</h1>
-      <p style="color:var(--gray-600);font-size:0.9rem;margin-top:0.35rem;">
-        Daftarkan identitas Anda ke dalam database untuk mendapatkan akses penuh belajar dan mengajar.
+  <div class="auth-wrapper" style="max-width:580px;">
+    
+    <div style="text-align:center;margin-bottom:1.5rem;">
+      <div class="brand-icon" style="margin:0 auto 0.75rem;width:52px;height:52px;font-size:1.6rem;">G</div>
+      <h1 id="regTitle" style="font-size:1.65rem;font-weight:800;color:var(--dark);">
+        Pendaftaran Akun GoMobile
+      </h1>
+      <p style="color:var(--gray-600);font-size:0.92rem;margin-top:0.35rem;">
+        Daftarkan identitas Anda ke database sesuai Point of View (Siswa Belajar atau Pengajar/Guru).
       </p>
     </div>
 
-    <!-- Role Switcher: Siswa / Pengajar -->
-    <div class="role-switcher-tabs">
-      <button type="button" class="role-tab-btn active" data-role="siswa">
-        <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Role Switcher (POV Selector) -->
+    <div class="role-switcher-tabs" style="grid-template-columns:1fr 1fr;margin-bottom:1.25rem;">
+      <button type="button" class="role-tab-btn {% if preset_role != 'pengajar' %}active{% endif %}" data-role="siswa" id="regTabSiswa">
+        <svg style="width:19px;height:19px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path>
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
         </svg>
-        Daftar Sebagai Siswa
+        <span>Daftar Sebagai Siswa</span>
       </button>
-      <button type="button" class="role-tab-btn" data-role="pengajar">
-        <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+      <button type="button" class="role-tab-btn {% if preset_role == 'pengajar' %}active{% endif %}" data-role="pengajar" id="regTabPengajar">
+        <svg style="width:19px;height:19px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
         </svg>
-        Daftar Sebagai Pengajar
+        <span>Daftar Sebagai Pengajar</span>
       </button>
     </div>
 
-    <form method="POST" action="{{ url_for('register') }}">
-      <input type="hidden" name="role" id="roleInput" value="siswa">
+    <form method="POST" action="{{ url_for('register') }}" id="regForm">
+      <input type="hidden" name="role" id="regRoleInput" value="{{ preset_role or 'siswa' }}">
 
+      <!-- Nama Lengkap -->
       <div class="form-group">
-        <label class="form-label" for="full_name">Nama Lengkap</label>
-        <input type="text" class="form-control" id="full_name" name="full_name" required placeholder="Contoh: Muhammad Fajri">
+        <label class="form-label" for="full_name" id="labelFullName">Nama Lengkap Siswa</label>
+        <input type="text" class="form-control" id="full_name" name="full_name" required placeholder="Contoh: Muhammad Fajri Pratama">
       </div>
 
+      <!-- Username & No HP -->
       <div class="form-row-2">
         <div class="form-group">
           <label class="form-label" for="username">ID Pengguna (Username)</label>
           <input type="text" class="form-control" id="username" name="username" required placeholder="Contoh: fajri_siswa">
-          <small style="color:var(--gray-500);font-size:0.75rem;">Digunakan untuk login ke sistem</small>
+          <small style="color:var(--gray-500);font-size:0.74rem;">Digunakan untuk login ke sistem</small>
         </div>
 
         <div class="form-group">
@@ -51,16 +57,53 @@
         </div>
       </div>
 
+      <!-- Email -->
       <div class="form-group">
         <label class="form-label" for="email">Alamat Email Aktif</label>
         <input type="email" class="form-control" id="email" name="email" required placeholder="nama@email.com">
       </div>
 
+      <!-- Asal Sekolah / Lembaga -->
       <div class="form-group">
-        <label class="form-label" for="school">Asal Sekolah / Universitas / Lembaga</label>
-        <input type="text" class="form-control" id="school" name="school" required placeholder="Contoh: SMA Negeri 3 / Guru Les Fisika">
+        <label class="form-label" for="school" id="labelSchool">Asal Sekolah</label>
+        <input type="text" class="form-control" id="school" name="school" required placeholder="Contoh: SMA Negeri 3 / SMA Nusantara">
       </div>
 
+      <!-- SPECIFIC FIELDS: SISWA POV -->
+      <div id="siswaSpecificSection">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" for="grade">Jenjang Kelas SMA</label>
+            <select class="form-control" id="grade" name="grade">
+              <option value="10">Kelas 10 SMA (Fase E Dasar)</option>
+              <option value="11">Kelas 11 SMA (Fase F Lanjutan)</option>
+              <option value="12" selected>Kelas 12 SMA (Persiapan UTBK &amp; Ujian)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="target_campus">Target Kampus / Jurusan Impian</label>
+            <input type="text" class="form-control" id="target_campus" name="target_campus" placeholder="Contoh: STEI ITB / FK UI / UGM">
+          </div>
+        </div>
+      </div>
+
+      <!-- SPECIFIC FIELDS: PENGAJAR POV -->
+      <div id="pengajarSpecificSection" style="display:none;">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" for="specialty">Mata Pelajaran yang Diampu</label>
+            <input type="text" class="form-control" id="specialty" name="specialty" placeholder="Contoh: Matematika, Fisika, atau TPS UTBK">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="nip">NIP / Kode Pendidik (Opsional)</label>
+            <input type="text" class="form-control" id="nip" name="nip" placeholder="Contoh: 19850312 201001 1 008">
+          </div>
+        </div>
+      </div>
+
+      <!-- Kata Sandi -->
       <div class="form-row-2">
         <div class="form-group">
           <label class="form-label" for="password">Kata Sandi (Password)</label>
@@ -73,17 +116,77 @@
         </div>
       </div>
 
-      <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:1.5rem;">
+      <button type="submit" class="btn btn-primary btn-block btn-lg" id="regSubmitBtn" style="margin-top:1.25rem;">
         Daftar Sekarang &amp; Simpan ke Database
       </button>
     </form>
 
-    <div style="text-align:center;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--gray-200);font-size:0.9rem;color:var(--gray-600);">
+    <div style="text-align:center;margin-top:1.5rem;padding-top:1.2rem;border-top:1px solid var(--gray-200);font-size:0.88rem;color:var(--gray-600);">
       Sudah memiliki akun terdaftar?
       <a href="{{ url_for('login') }}" style="color:var(--primary);font-weight:700;text-decoration:none;">
-        Masuk Disini
+        Masuk Disini &rarr;
       </a>
     </div>
+
   </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function switchRegisterRole(role) {
+  const isTeacher = role === 'pengajar';
+  document.getElementById('regRoleInput').value = role;
+
+  const tabSiswa = document.getElementById('regTabSiswa');
+  const tabPengajar = document.getElementById('regTabPengajar');
+  const labelFullName = document.getElementById('labelFullName');
+  const labelSchool = document.getElementById('labelSchool');
+  const schoolInput = document.getElementById('school');
+  const siswaSection = document.getElementById('siswaSpecificSection');
+  const pengajarSection = document.getElementById('pengajarSpecificSection');
+  const submitBtn = document.getElementById('regSubmitBtn');
+
+  if (isTeacher) {
+    tabSiswa.classList.remove('active');
+    tabPengajar.classList.add('active');
+
+    labelFullName.textContent = 'Nama Lengkap Guru (beserta Gelar)';
+    labelSchool.textContent = 'Instansi Sekolah / Lembaga Bimbingan Mengajar';
+    schoolInput.placeholder = 'Contoh: SMA Negeri 1 Edukasi / Lembaga Privat Sains';
+
+    siswaSection.style.display = 'none';
+    pengajarSection.style.display = 'block';
+
+    submitBtn.style.background = '#7C3AED';
+    submitBtn.style.borderColor = '#7C3AED';
+    submitBtn.textContent = 'Daftar Sebagai Pengajar / Guru';
+  } else {
+    tabPengajar.classList.remove('active');
+    tabSiswa.classList.add('active');
+
+    labelFullName.textContent = 'Nama Lengkap Siswa';
+    labelSchool.textContent = 'Asal Sekolah SMA';
+    schoolInput.placeholder = 'Contoh: SMA Negeri 3 / SMA Nusantara';
+
+    siswaSection.style.display = 'block';
+    pengajarSection.style.display = 'none';
+
+    submitBtn.style.background = 'var(--primary)';
+    submitBtn.style.borderColor = 'var(--primary)';
+    submitBtn.textContent = 'Daftar Sekarang & Simpan ke Database';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const tabSiswa = document.getElementById('regTabSiswa');
+  const tabPengajar = document.getElementById('regTabPengajar');
+
+  if (tabSiswa) tabSiswa.addEventListener('click', () => switchRegisterRole('siswa'));
+  if (tabPengajar) tabPengajar.addEventListener('click', () => switchRegisterRole('pengajar'));
+
+  const initialRole = document.getElementById('regRoleInput').value || 'siswa';
+  switchRegisterRole(initialRole);
+});
+</script>
 {% endblock %}
